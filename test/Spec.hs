@@ -1,2 +1,8 @@
+import Test.Tasty
+import Test.Tasty.HUnit
+
 main :: IO ()
-main = return ()
+main = defaultMain $ testGroup ""
+    [ testCase "ok" $
+          return ()
+    ]
