@@ -3,7 +3,7 @@ version:             0.0.0.0
 synopsis:            Send notifications from some Discourse instance to some Gitter chat
 -- description:
 homepage:            http://github.com/cblp/discourse-to-gitter#readme
-license:             GPL3
+license:             GPL-3
 license-file:        LICENSE
 author:              Yuriy Syrovetskiy
 maintainer:          cblp@cblp.su
