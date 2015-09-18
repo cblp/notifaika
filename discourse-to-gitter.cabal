@@ -16,9 +16,13 @@ cabal-version:       >= 1.10
 library
     build-depends:      aeson
                       , base
+                      , errors
+                      , lens
+                      , lens-aeson
                       , monad-logger
                       , mtl
                       , text
+                      , unordered-containers
     default-extensions: TemplateHaskell
     default-language:   Haskell2010
     exposed-modules:    Discourse

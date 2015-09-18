@@ -17,8 +17,9 @@ newtype TestIO a = TestIO { runTestIO :: WriterT [WorldChange] (LoggingT IO) a }
     deriving (Applicative, Functor, Monad, MonadLogger)
 
 instance MonadDiscourse TestIO where
-    getLatest =
-        TestIO . lift . lift $ decodeFile "test/data/discourse/latest.json"
+    getLatest = TestIO . lift . lift $
+        either error id . decodeLatestResponse
+            <$> decodeFile "test/data/discourse/latest.json"
 
 decodeFile :: FromJSON a => FilePath -> IO a
 decodeFile filepath = do
@@ -26,7 +27,7 @@ decodeFile filepath = do
     let decodeResult = eitherDecode bytes
     case decodeResult of
         Left decodeError ->
-            error $ "Cannot decode file \"" <> filepath <> "\": " <> decodeError
+            error ("Cannot decode file \"" <> filepath <> "\": " <> decodeError)
         Right value ->
             return value
 
