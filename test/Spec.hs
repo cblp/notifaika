@@ -11,6 +11,7 @@ import Test.Tasty.HUnit
 main :: IO ()
 main = defaultMain $ testGroup ""
     [ testCase "repostUpdates" $ do
-          worldChanges <- execTestIO repostUpdates
-          assertEqual "worldChanges" worldChanges []
+          effects <- execTestIO repostUpdates
+          let effectsExpected = [DiscourseGetLatestJson]
+          assertEqual "effects" effectsExpected effects
     ]
