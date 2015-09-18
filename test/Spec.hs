@@ -1,22 +1,16 @@
-{-# LANGUAGE DeriveFunctor #-}
+{-# LANGUAGE NamedFieldPuns #-}
 
+-- component
+import TestIO
+-- project
 import Lib
-
+-- general
 import Test.Tasty
 import Test.Tasty.HUnit
 
 main :: IO ()
 main = defaultMain $ testGroup ""
-    [ testCase "repostUpdates" $
-          runTestIO repostUpdates
+    [ testCase "repostUpdates" $ do
+          let TestIO{testIO_log, testIO_value = ()} = repostUpdates
+          assertEqual "log" testIO_log []
     ]
-
-data TestIO a = TestIO a deriving Functor
-instance Applicative TestIO where
-    pure = TestIO
-    (TestIO f) <*> tio = fmap f tio
-instance Monad TestIO where
-    (TestIO x) >>= f = f x
-
-runTestIO :: TestIO a -> IO a
-runTestIO (TestIO x) = return x
