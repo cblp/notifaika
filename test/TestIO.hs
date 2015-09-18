@@ -25,7 +25,12 @@ instance MonadDiscourse TestIO where
 decodeFile :: FromJSON a => FilePath -> IO a
 decodeFile filepath = do
     bytes <- ByteString.readFile filepath
-    return . either (error $ "Cannot decode " <> filepath) id $ eitherDecode bytes
+    let decodeResult = eitherDecode bytes
+    case decodeResult of
+        Left decodeError ->
+            error $ "Cannot decode file \"" <> filepath <> "\": " <> decodeError
+        Right value ->
+            return value
 
 execTestIO :: TestIO () -> IO [WorldChange]
 execTestIO = execWriterT . runTestIO
