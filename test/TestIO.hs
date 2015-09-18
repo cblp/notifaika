@@ -13,14 +13,12 @@ import Data.ByteString.Lazy as ByteString
 data WorldChange = MissileLaunch
     deriving (Eq, Show)
 
-newtype TestIO a = TestIO { runTestIO :: WriterT [WorldChange] IO a }
-    deriving (Applicative, Functor, Monad)
-
-instance MonadLogger TestIO where
-    monadLoggerLog = error "not implemented monadLoggerLog@TestIO"
+newtype TestIO a = TestIO { runTestIO :: WriterT [WorldChange] (LoggingT IO) a }
+    deriving (Applicative, Functor, Monad, MonadLogger)
 
 instance MonadDiscourse TestIO where
-    getLatest = TestIO . lift $ decodeFile "test/data/discourse/latest.json"
+    getLatest =
+        TestIO . lift . lift $ decodeFile "test/data/discourse/latest.json"
 
 decodeFile :: FromJSON a => FilePath -> IO a
 decodeFile filepath = do
@@ -33,4 +31,4 @@ decodeFile filepath = do
             return value
 
 execTestIO :: TestIO () -> IO [WorldChange]
-execTestIO = execWriterT . runTestIO
+execTestIO = runStderrLoggingT . execWriterT . runTestIO
