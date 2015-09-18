@@ -29,6 +29,7 @@ library
                         Lib
     ghc-options:        -Wall -Werror
     hs-source-dirs:     src
+    other-modules:      Data.String.Extra
 
 executable discourse-to-gitter-exe
     hs-source-dirs:   app
