@@ -34,8 +34,9 @@ instance MonadDiscourse TestIO where
         tell [DiscourseGet "/latest.json"]
         liftIO $ do
             jsonContent <- decodeFile "test/data/discourse/latest.json"
-            let latestPosts = either error id (decodeLatestResponse jsonContent)
-            return latestPosts
+            fromRight (decodeLatestResponse jsonContent)
+      where
+        fromRight = either fail return
 
 decodeFile :: FromJSON a => FilePath -> IO a
 decodeFile filepath = do
