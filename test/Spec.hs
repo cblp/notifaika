@@ -11,7 +11,12 @@ import Test.Tasty.HUnit
 main :: IO ()
 main = defaultMain $ testGroup ""
     [ testCase "repostUpdates" $ do
-          effects <- execTestIO repostUpdates
-          let effectsExpected = [DiscourseGetLatestJson]
-          assertEqual "effects" effectsExpected effects
+          TestIOResult{..} <- execTestIO repostUpdates
+          let effectsExpected = [ DiscourseGet "/latest.json"
+                                , CacheRead
+                                , CacheWrite
+                                , GitterPost
+                                ]
+          assertEqual "effects" effectsExpected testIOResult_effects
+          assertEqual "cache" [] testIOResult_cache
     ]

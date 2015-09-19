@@ -23,9 +23,12 @@ library
                       , mtl
                       , text
                       , unordered-containers
-    default-extensions: TemplateHaskell
+    default-extensions: FlexibleContexts
+                        FlexibleInstances
+                        TemplateHaskell
     default-language:   Haskell2010
-    exposed-modules:    Discourse
+    exposed-modules:    Cache
+                        Discourse
                         Lib
     ghc-options:        -Wall -Werror
     hs-source-dirs:     src
@@ -41,20 +44,22 @@ executable discourse-to-gitter-exe
     default-language: Haskell2010
 
 test-suite discourse-to-gitter-test
-    type:             exitcode-stdio-1.0
-    hs-source-dirs:   test
-    main-is:          Spec.hs
-    build-depends:    aeson
-                    , base
-                    , bytestring
-                    , discourse-to-gitter
-                    , monad-logger
-                    , mtl
-                    , tasty
-                    , tasty-hunit
-                    , text
-    ghc-options:      -Wall -Werror -threaded -rtsopts -with-rtsopts=-N
-    default-language: Haskell2010
+    build-depends:      aeson
+                      , base
+                      , bytestring
+                      , discourse-to-gitter
+                      , monad-logger
+                      , mtl
+                      , tasty
+                      , tasty-hunit
+                      , text
+    default-extensions: RecordWildCards
+    default-language:   Haskell2010
+    ghc-options:        -Wall -Werror -threaded -rtsopts -with-rtsopts=-N
+    hs-source-dirs:     test
+    main-is:            Spec.hs
+    other-modules:      TestIO
+    type:               exitcode-stdio-1.0
 
 source-repository head
     type:     git

@@ -1,4 +1,4 @@
-{-# LANGUAGE FlexibleInstances, OverloadedStrings #-}
+{-# LANGUAGE OverloadedStrings #-}
 
 module Discourse where
 
@@ -12,7 +12,7 @@ import Data.Aeson.TH
 import Data.String.Extra
 
 data Post = Post { post_id :: Int }
-    deriving Show
+    deriving (Eq, Show)
 
 deriveJSON defaultOptions{fieldLabelModifier = dropPrefix "post_"} ''Post
 
