@@ -22,9 +22,11 @@ library
                       , monad-logger
                       , mtl
                       , text
+                      , time
                       , unordered-containers
     default-extensions: FlexibleContexts
                         FlexibleInstances
+                        OverloadedStrings
                         TemplateHaskell
     default-language:   Haskell2010
     exposed-modules:    Cache

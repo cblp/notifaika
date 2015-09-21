@@ -1,5 +1,3 @@
-{-# LANGUAGE OverloadedStrings #-}
-
 module Discourse where
 
 import Prelude hiding ( lookup )
@@ -9,10 +7,15 @@ import Control.Monad.Trans
 import Data.Aeson
 import Data.Aeson.Lens
 import Data.Aeson.TH
+import Data.Ord
 import Data.String.Extra
+import Data.Time
 
-data Post = Post { post_id :: Int }
+data Post = Post { post_id :: Int, post_created_at :: UTCTime }
     deriving (Eq, Show)
+
+instance Ord Post where
+    compare = comparing post_created_at
 
 deriveJSON defaultOptions{fieldLabelModifier = dropPrefix "post_"} ''Post
 
