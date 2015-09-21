@@ -11,7 +11,7 @@ import Data.Ord
 import Data.String.Extra
 import Data.Time
 
-data Post = Post { post_id :: Int, post_created_at :: UTCTime }
+data Post = Post { post_id :: Integer, post_created_at :: UTCTime }
     deriving (Eq, Show)
 
 instance Ord Post where
