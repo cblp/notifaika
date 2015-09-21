@@ -21,6 +21,7 @@ repostUpdates = do
     cachedPosts <- loadDef []
     let newPosts = detectNewPosts cachedPosts latestPosts
     $logDebug ("newPosts = " <> showText newPosts)
+    save latestPosts
     return ()
 
 showText :: Show a => a -> Text
