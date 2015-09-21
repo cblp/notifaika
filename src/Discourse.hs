@@ -3,6 +3,7 @@ module Discourse where
 import Prelude hiding ( lookup )
 import Control.Error
 import Control.Lens
+import Control.Monad.Logger
 import Control.Monad.Trans
 import Data.Aeson
 import Data.Aeson.Lens
@@ -24,7 +25,7 @@ decodeLatestResponse :: Value -> Either String [Topic]
 decodeLatestResponse response = do
     topicList <- note "\"latest\" must have key \"topic_list\""
         (response ^? key "topic_list")
-    topics <- note "\"latest.topic_list\" must have key \"topic\""
+    topics <- note "\"latest.topic_list\" must have key \"topics\""
         (topicList ^? key "topics")
     resultToEither (fromJSON topics)
 
@@ -38,5 +39,5 @@ class MonadDiscourse m where
 instance MonadDiscourse IO where
     getLatest = error "not implemented getLatest@IO"
 
-instance (Monad m, MonadDiscourse m, MonadTrans t) => MonadDiscourse (t m) where
+instance (Monad m, MonadDiscourse m) => MonadDiscourse (LoggingT m) where
     getLatest = lift getLatest
