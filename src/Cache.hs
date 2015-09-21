@@ -33,7 +33,6 @@ instance Functor m => MonadCache a (FileCacheT m) where
 instance Functor m => MonadLogger (FileCacheT m) where
     monadLoggerLog = undefined
 
--- | TODO MonadState?
 instance Monad m => MonadCache s (StateT s m) where
     loadDef _ = get
     save = put
