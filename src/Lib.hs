@@ -9,20 +9,20 @@ import            Data.Monoid
 import            Data.Text ( Text )
 import qualified  Data.Text as Text
 
-detectNewPosts :: [Post] -> [Post] -> [Post]
-detectNewPosts []   =
+detectNewTopics :: [Topic] -> [Topic] -> [Topic]
+detectNewTopics []   =
     return . maximum
-detectNewPosts olds =
-    filter $ \post ->
-        any (\old -> post_id old /= post_id post && old <= post) olds
+detectNewTopics olds =
+    filter $ \topic ->
+        any (\old -> topic_id old /= topic_id topic && old <= topic) olds
 
-repostUpdates :: (MonadCache [Post] m, MonadDiscourse m, MonadLogger m) => m ()
+repostUpdates :: (MonadCache [Topic] m, MonadDiscourse m, MonadLogger m) => m ()
 repostUpdates = do
-    latestPosts <- Discourse.getLatest
-    cachedPosts <- loadDef []
-    let newPosts = detectNewPosts cachedPosts latestPosts
-    $logDebug ("newPosts = " <> showText newPosts)
-    save latestPosts
+    latestTopics <- Discourse.getLatest
+    cachedTopics <- loadDef []
+    let newTopics = detectNewTopics cachedTopics latestTopics
+    $logDebug ("newTopics = " <> showText newTopics)
+    save latestTopics
     return ()
 
 showText :: Show a => a -> Text

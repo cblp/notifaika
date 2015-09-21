@@ -11,16 +11,16 @@ import Data.Ord
 import Data.String.Extra
 import Data.Time
 
-data Post = Post { post_id :: Integer, post_created_at :: UTCTime }
+data Topic = Topic { topic_id :: Integer, topic_created_at :: UTCTime }
     deriving (Eq, Show)
 
-instance Ord Post where
-    compare = comparing post_created_at
+instance Ord Topic where
+    compare = comparing topic_created_at
 
-deriveJSON defaultOptions{fieldLabelModifier = dropPrefix "post_"} ''Post
+deriveJSON defaultOptions{fieldLabelModifier = dropPrefix "topic_"} ''Topic
 
 -- | decode response to "/latest.json" request
-decodeLatestResponse :: Value -> Either String [Post]
+decodeLatestResponse :: Value -> Either String [Topic]
 decodeLatestResponse response = do
     topicList <- note "\"latest\" must have key \"topic_list\""
         (response ^? key "topic_list")
@@ -33,7 +33,7 @@ resultToEither (Success s)  = Right s
 resultToEither (Error e)    = Left e
 
 class MonadDiscourse m where
-    getLatest :: m [Post]
+    getLatest :: m [Topic]
 
 instance MonadDiscourse IO where
     getLatest = error "not implemented getLatest@IO"

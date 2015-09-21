@@ -12,16 +12,17 @@ import Test.Tasty.HUnit
 
 main :: IO ()
 main = defaultMain $ testGroup ""
-    [ testCase "detectNewPosts" $ do
+    [ testCase "detectNewTopics" $ do
           assertEqual "if no old, select the 1 newest"
-              [post 3 3]
-              (detectNewPosts [] [post 1 1, post 3 3, post 2 2])
+              [topic 3 3]
+              (detectNewTopics [] [topic 1 1, topic 3 3, topic 2 2])
           assertEqual "if some old, select only newer"
-              [post 3 3]
-              (detectNewPosts [post 2 2] [post 1 1, post 3 3, post 2 2])
+              [topic 3 3]
+              (detectNewTopics [topic 2 2] [topic 1 1, topic 3 3, topic 2 2])
           assertEqual "if time same, check ids"
-              [post 20 2, post 22 2]
-              (detectNewPosts [post 21 2] [post 20 2, post 21 2, post 22 2])
+              [topic 20 2, topic 22 2]
+              (detectNewTopics  [topic 21 2] 
+                                [topic 20 2, topic 21 2, topic 22 2])
     , testCase "repostUpdates" $ do
           TestIOResult{..} <- execTestIO repostUpdates
           let effectsExpected = [ DiscourseGet "/latest.json"
@@ -30,11 +31,10 @@ main = defaultMain $ testGroup ""
                                 -- TODO , GitterPost
                                 ]
           assertEqual "effects" effectsExpected testIOResult_effects
-          -- TODO assertEqual "cache" [] testIOResult_cache
     ]
 
-post :: Integer -> Integer -> Post
-post pid time =
-    Post  { post_id = pid
-          , post_created_at = posixSecondsToUTCTime (fromIntegral time)
+topic :: Integer -> Integer -> Topic
+topic pid time =
+    Topic { topic_id = pid
+          , topic_created_at = posixSecondsToUTCTime (fromIntegral time)
           }

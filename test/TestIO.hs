@@ -18,10 +18,10 @@ import Data.ByteString.Lazy as ByteString
 data Effect = CacheRead | CacheWrite | DiscourseGet String | GitterPost
     deriving (Eq, Show)
 
-newtype TestIO a = TestIO (WriterT [Effect] (StateT [Post] (LoggingT IO)) a)
+newtype TestIO a = TestIO (WriterT [Effect] (StateT [Topic] (LoggingT IO)) a)
     deriving (Applicative, Functor, Monad, MonadLogger)
 
-instance MonadCache [Post] TestIO where
+instance MonadCache [Topic] TestIO where
     loadDef def = TestIO $ do
         tell [CacheRead]
         loadDef def
@@ -49,7 +49,7 @@ decodeFile filepath = do
             return value
 
 data TestIOResult = TestIOResult  { testIOResult_effects  :: [Effect]
-                                  , testIOResult_cache    :: [Post]
+                                  , testIOResult_cache    :: [Topic]
                                   }
 
 execTestIO :: TestIO () -> IO TestIOResult
