@@ -7,19 +7,24 @@ module TestIO (Effect(..), TestIO, TestIOResult(..), execTestIO) where
 
 -- package
 import Cache
+import Config
 import Discourse
+import Gitter.Monad
+import Gitter.Types
 -- general
 import Control.Monad.Logger
-import Control.Monad.State
-import Control.Monad.Writer
+import Control.Monad.RWS
 import Data.Aeson
 import Data.ByteString.Lazy as ByteString
 
-data Effect = CacheRead | CacheWrite | DiscourseGet String | GitterPost
+data Effect = CacheRead
+            | CacheWrite
+            | DiscourseGet String
+            | GitterAction ResourcePath Value
     deriving (Eq, Show)
 
-newtype TestIO a = TestIO (WriterT [Effect] (StateT [Topic] (LoggingT IO)) a)
-    deriving (Applicative, Functor, Monad, MonadLogger)
+newtype TestIO a = TestIO (RWST Config [Effect] [Topic] (LoggingT IO) a)
+    deriving (Applicative, Functor, Monad, MonadLogger, MonadReader Config)
 
 instance MonadCache [Topic] TestIO where
     loadDef def = TestIO $ do
@@ -32,11 +37,15 @@ instance MonadCache [Topic] TestIO where
 instance MonadDiscourse TestIO where
     getLatest = TestIO $ do
         tell [DiscourseGet "/latest.json"]
-        liftIO $ do
-            jsonContent <- decodeFile "test/data/discourse/latest.json"
-            fromRight (decodeLatestResponse jsonContent)
+        jsonContent <- liftIO (decodeFile "test/data/discourse/latest.json")
+        fromRight (decodeLatestResponse jsonContent)
       where
         fromRight = either fail return
+
+instance MonadGitter TestIO where
+    runGitterAction path body = do
+        TestIO $ tell [GitterAction path body]
+        return (mockGitter path body)
 
 decodeFile :: FromJSON a => FilePath -> IO a
 decodeFile filepath = do
@@ -55,9 +64,27 @@ data TestIOResult = TestIOResult  { testIOResult_effects  :: [Effect]
 execTestIO :: TestIO () -> IO TestIOResult
 execTestIO testAction = do
     let cache = []
-        TestIO writerAction = testAction
-        stateAction = execWriterT writerAction
-        loggingAction = runStateT stateAction cache
+        TestIO rwsAction = testAction
+        loggingAction = execRWST rwsAction testConfig cache
         ioAction = runStderrLoggingT loggingAction
-    (testIOResult_effects, testIOResult_cache) <- ioAction
+    (testIOResult_cache, testIOResult_effects) <- ioAction
     return TestIOResult{..}
+
+testConfig :: Config
+testConfig =
+    Config  { _config_gitterBaseUrl = "test://api.gitter.example.com/v1"
+            , _config_room = RoomOneToOne "cblp"
+            }
+
+mockGitter :: ResourcePath -> Value -> Value
+mockGitter url req =
+    let err = error ("don't know how to mock " <> show url <> " " <> show req)
+    in case url of
+        ["rooms"] -> case req of
+            Object [("uri", "cblp")] -> Object [("id", "exampleroomid")]
+            _ -> err
+        ["room", "exampleroomid", "chatMessages"] ->
+            case req of
+                "{\"text\":\"new topic!\"}" -> "{}"
+                _ -> err
+        _ -> error ("don't know how to mock " <> show url)

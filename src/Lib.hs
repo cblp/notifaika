@@ -1,10 +1,17 @@
+{-# LANGUAGE ConstraintKinds #-}
+
 module Lib where
 
 -- component
 import Cache
+import Config
 import Discourse
--- general
+import Gitter
+import Gitter.Monad
+-- global
+import            Control.Lens
 import            Control.Monad.Logger
+import            Control.Monad.Reader
 import            Data.Monoid
 import            Data.Text ( Text )
 import qualified  Data.Text as Text
@@ -16,14 +23,24 @@ detectNewTopics olds =
     filter $ \topic ->
         any (\old -> topic_id old /= topic_id topic && old <= topic) olds
 
-repostUpdates :: (MonadCache [Topic] m, MonadDiscourse m, MonadLogger m) => m ()
+type MonadRepost m =  ( MonadCache [Topic] m
+                      , MonadDiscourse m
+                      , MonadGitter m
+                      , MonadLogger m
+                      , MonadReader Config m
+                      )
+
+repostUpdates :: MonadRepost m => m ()
 repostUpdates = do
     latestTopics <- Discourse.getLatest
     cachedTopics <- loadDef []
     let newTopics = detectNewTopics cachedTopics latestTopics
     $logDebug ("newTopics = " <> showText newTopics)
     save latestTopics
-    return ()
+
+    room <- view config_room
+    let message = "new topic!"
+    withRoom room (sendChatMessage message)
 
 showText :: Show a => a -> Text
 showText = Text.pack . show

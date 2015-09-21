@@ -4,7 +4,7 @@ import Prelude hiding ( lookup )
 import Control.Error
 import Control.Lens
 import Control.Monad.Logger
-import Control.Monad.Trans
+import Control.Monad.Reader
 import Data.Aeson
 import Data.Aeson.Lens
 import Data.Aeson.TH
@@ -40,4 +40,7 @@ instance MonadDiscourse IO where
     getLatest = error "not implemented getLatest@IO"
 
 instance (Monad m, MonadDiscourse m) => MonadDiscourse (LoggingT m) where
+    getLatest = lift getLatest
+
+instance (Monad m, MonadDiscourse m) => MonadDiscourse (ReaderT r m) where
     getLatest = lift getLatest

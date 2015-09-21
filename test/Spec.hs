@@ -1,11 +1,10 @@
-{-# LANGUAGE NamedFieldPuns #-}
-
 -- component
 import TestIO
 -- package
 import Discourse
 import Lib
--- general
+-- global
+import Data.Aeson
 import Data.Time.Clock.POSIX
 import Test.Tasty
 import Test.Tasty.HUnit
@@ -25,11 +24,15 @@ main = defaultMain $ testGroup ""
                                 [topic 20 2, topic 21 2, topic 22 2])
     , testCase "repostUpdates" $ do
           TestIOResult{..} <- execTestIO repostUpdates
-          let effectsExpected = [ DiscourseGet "/latest.json"
-                                , CacheRead
-                                , CacheWrite
-                                -- TODO , GitterPost
-                                ]
+          let effectsExpected =
+                  [ DiscourseGet "/latest.json"
+                  , CacheRead
+                  , CacheWrite
+                  , GitterAction ["rooms"] (Object [("uri", "cblp")])
+                  , GitterAction
+                        ["room", "exampleroomid", "chatMessages"]
+                        (Object [("text", "new topic!")])
+                  ]
           assertEqual "effects" effectsExpected testIOResult_effects
     ]
 
