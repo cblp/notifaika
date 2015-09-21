@@ -21,7 +21,7 @@ main = defaultMain $ testGroup ""
               (detectNewTopics [topic 2 2] [topic 1 1, topic 3 3, topic 2 2])
           assertEqual "if time same, check ids"
               [topic 20 2, topic 22 2]
-              (detectNewTopics  [topic 21 2] 
+              (detectNewTopics  [topic 21 2]
                                 [topic 20 2, topic 21 2, topic 22 2])
     , testCase "repostUpdates" $ do
           TestIOResult{..} <- execTestIO repostUpdates
@@ -34,7 +34,7 @@ main = defaultMain $ testGroup ""
     ]
 
 topic :: Integer -> Integer -> Topic
-topic pid time =
-    Topic { topic_id = pid
+topic tid time =
+    Topic { topic_id = tid
           , topic_created_at = posixSecondsToUTCTime (fromIntegral time)
           }
