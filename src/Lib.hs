@@ -5,15 +5,13 @@ import Cache
 import Discourse
 -- general
 import            Control.Monad.Logger
-import            Data.List
 import            Data.Monoid
-import            Data.Ord
 import            Data.Text ( Text )
 import qualified  Data.Text as Text
 
 detectNewPosts :: [Post] -> [Post] -> [Post]
 detectNewPosts []   =
-    take 1 . sortBy (comparing Down)
+    return . maximum
 detectNewPosts olds =
     filter $ \post ->
         any (\old -> post_id old /= post_id post && old <= post) olds
