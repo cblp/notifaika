@@ -11,4 +11,4 @@ type RoomUri = Text
 
 data Room = RoomOneToOne UserName | RoomRepo UserName RepoName
 
-deriveFromJSON defaultOptions ''Room
+deriveJSON defaultOptions ''Room

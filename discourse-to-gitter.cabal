@@ -35,7 +35,6 @@ library
     default-language:   Haskell2010
     exposed-modules:    Cache
                         Config
-                        Control.Monad.Trans.X
                         Discourse
                         Gitter
                         Gitter.Monad
@@ -43,7 +42,8 @@ library
                         Lib
     ghc-options:        -Wall -Werror
     hs-source-dirs:     src
-    other-modules:      Data.String.Extra
+    other-modules:      Control.Monad.Trans.X
+                        Data.String.X
 
 executable discourse-to-gitter-exe
     hs-source-dirs:     app
@@ -56,7 +56,10 @@ executable discourse-to-gitter-exe
                       , lens
                       , monad-logger
                       , mtl
-    default-extensions: RecordWildCards
+                      , text
+    default-extensions: OverloadedStrings
+                        RecordWildCards
+                        TemplateHaskell
     default-language:   Haskell2010
 
 test-suite discourse-to-gitter-test

@@ -9,7 +9,7 @@ import Data.Aeson
 import Data.Aeson.Lens
 import Data.Aeson.TH
 import Data.Ord
-import Data.String.Extra
+import Data.String.X
 import Data.Time
 
 data Topic = Topic { topic_id :: Integer, topic_created_at :: UTCTime }

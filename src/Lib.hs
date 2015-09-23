@@ -38,7 +38,7 @@ repostUpdates = do
     $logDebug ("newTopics = " <> showText newTopics)
     save latestTopics
 
-    room <- view config_room
+    room <- view config_gitterRoom
     let message = "new topic!"
     withRoom room (sendChatMessage message)
 

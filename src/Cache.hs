@@ -21,20 +21,22 @@ newtype FileCacheT m a = FileCacheT { runFileCacheT :: FilePath -> m a }
     deriving Functor
 
 instance MonadTrans FileCacheT where
-    lift = error "unimplemented lift@FileCacheT"
+    lift = FileCacheT . const
 
-instance Functor m => Applicative (FileCacheT m) where
-    pure = error "unimplemented pure@FileCacheT"
-    (<*>) = error "unimplemented (<*>)@FileCacheT"
+instance Applicative m => Applicative (FileCacheT m) where
+    pure = FileCacheT . const . pure
+    (FileCacheT f) <*> (FileCacheT x) = FileCacheT (\file -> f file <*> x file)
 
-instance Functor m => Monad (FileCacheT m) where
-    (>>=) = error "unimplemented (>>=)@FileCacheT"
+instance Monad m => Monad (FileCacheT m) where
+    (FileCacheT mf) >>= g = FileCacheT $ \file -> do
+        a <- mf file
+        runFileCacheT (g a) file
 
 instance Functor m => MonadCache a (FileCacheT m) where
     loadDef = error "unimplemented loadDef@FileCacheT"
     save = error "unimplemented save@FileCacheT"
 
-instance Functor m => MonadLogger (FileCacheT m) where
+instance Monad m => MonadLogger (FileCacheT m) where
     monadLoggerLog = error "unimplemented monadLoggerLog@FileCacheT"
 
 instance Monad m => MonadCache s (StateT s m) where
