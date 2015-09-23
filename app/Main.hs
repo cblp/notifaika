@@ -32,11 +32,10 @@ main = do
             discourse = Discourse
                 { discourse_baseUrl = config ^. config_discourseBaseUrl }
             gitter = Gitter { gitter_baseUrl = config ^. config_gitterBaseUrl }
-        runDiscourseT discourse $
-            runFileCacheT
-                (runGitterT gitter $
-                    runReaderT (runStderrLoggingT action) config)
-                cacheFile
+        runDiscourseT discourse .
+            runFileCacheT cacheFile .
+                runGitterT gitter $
+                    runReaderT (runStderrLoggingT action) config
 
 loadConfig :: FilePath -> IO Config
 loadConfig filePath = do
