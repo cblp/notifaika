@@ -28,6 +28,7 @@ library
                       , unordered-containers
     default-extensions: FlexibleContexts
                         FlexibleInstances
+                        GeneralizedNewtypeDeriving
                         MultiParamTypeClasses
                         OverloadedStrings
                         RecordWildCards

@@ -8,9 +8,11 @@ import Control.Monad.Reader
 import Data.Aeson
 import Data.Aeson.Lens
 import Data.Aeson.TH
+import Data.Monoid
 import Data.Ord
 import Data.String.X
 import Data.Time
+import Network.Wreq
 
 data Topic = Topic { topic_id :: Integer, topic_created_at :: UTCTime }
     deriving (Eq, Show)
@@ -36,8 +38,25 @@ resultToEither (Error e)    = Left e
 class MonadDiscourse m where
     getLatest :: m [Topic]
 
-instance MonadDiscourse IO where
-    getLatest = error "not implemented getLatest@IO"
+data Discourse = Discourse { discourse_baseUrl :: String }
+
+newtype DiscourseT m a = DiscourseT (ReaderT Discourse m a)
+    deriving (Applicative, Functor, Monad, MonadIO)
+
+runDiscourseT :: Discourse -> DiscourseT m a -> m a
+runDiscourseT discourse (DiscourseT readerAction) =
+    runReaderT readerAction discourse
+
+instance MonadDiscourse (DiscourseT IO) where
+    getLatest = DiscourseT $ do
+        Discourse{..} <- ask
+        response <- liftIO $ get (discourse_baseUrl <> "/latest.json")
+        jsonResponse <- asJSON response
+        let jsonBody = fromMaybe  (error "Can't decode Discourse response") 
+                                  (jsonResponse ^? responseBody)
+        case decodeLatestResponse jsonBody of
+            Left e -> fail e
+            Right topics -> return topics
 
 instance (Monad m, MonadDiscourse m) => MonadDiscourse (LoggingT m) where
     getLatest = lift getLatest

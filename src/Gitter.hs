@@ -1,5 +1,3 @@
-{-# LANGUAGE NamedFieldPuns, GeneralizedNewtypeDeriving #-}
-
 module Gitter
     ( Gitter(..)
     , GitterT
@@ -62,7 +60,7 @@ joinRoom room = do
 
 instance MonadIO io => MonadGitter (GitterT io) where
     runGitterAction path apiRequest = GitterT $ do
-        Gitter { gitter_baseUrl } <- ask
+        Gitter{..} <- ask
         let url = intercalate "/" (gitter_baseUrl : fmap Text.unpack path)
         response <- liftIO (post url (Json.encode apiRequest))
         either fail return (eitherDecode (response ^. responseBody))

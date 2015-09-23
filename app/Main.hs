@@ -3,6 +3,7 @@ module Main where
 -- component
 import Cache
 import Config
+import Discourse
 import Gitter
 import Lib
 -- general
@@ -27,11 +28,15 @@ main = do
   where
     run configFile action = do
         config <- loadConfig configFile
-        let gitter = Gitter { gitter_baseUrl = config ^. config_gitterBaseUrl }
-            cacheFile = config ^. config_cacheFile
-        runFileCacheT
-            (runGitterT gitter $ runReaderT (runStderrLoggingT action) config)
-            cacheFile
+        let cacheFile = config ^. config_cacheFile
+            discourse = Discourse
+                { discourse_baseUrl = config ^. config_discourseBaseUrl }
+            gitter = Gitter { gitter_baseUrl = config ^. config_gitterBaseUrl }
+        runDiscourseT discourse $
+            runFileCacheT
+                (runGitterT gitter $
+                    runReaderT (runStderrLoggingT action) config)
+                cacheFile
 
 loadConfig :: FilePath -> IO Config
 loadConfig filePath = do
