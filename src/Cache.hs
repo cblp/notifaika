@@ -32,12 +32,14 @@ instance MonadTrans FileCacheT where
 
 instance MonadIO io => MonadCache a (FileCacheT io) where
     loadDef def = FileCacheT $ do
-        file <- ask
+        filePath <- ask
         mvalue <- liftIO . runMaybeT $ do
-            contents <- hushT . tryIO $ ByteString.readFile file
+            contents <- hushT . tryIO $ ByteString.readFile filePath
             hoistMaybe (decode contents)
         return (fromMaybe def mvalue)
-    save = error "unimplemented save@FileCacheT"
+    save value = FileCacheT $ do
+        filePath <- ask
+        liftIO . ByteString.writeFile filePath $ encode value
 
 instance Monad m => MonadCache s (StateT s m) where
     loadDef _ = get
