@@ -36,11 +36,10 @@ repostUpdates = do
     cachedTopics <- loadDef []
     let newTopics = detectNewTopics cachedTopics latestTopics
     $logDebug ("newTopics = " <> showText newTopics)
-    save latestTopics
-
     room <- view config_gitterRoom
     let message = "new topic!"
     withRoom room (sendChatMessage message)
+    save latestTopics
 
 showText :: Show a => a -> Text
 showText = Text.pack . show

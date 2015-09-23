@@ -27,11 +27,11 @@ main = defaultMain $ testGroup ""
           let effectsExpected =
                   [ DiscourseGet "/latest.json"
                   , CacheRead
-                  , CacheWrite
                   , GitterAction ["rooms"] (Object [("uri", "cblp")])
                   , GitterAction
                         ["room", "exampleroomid", "chatMessages"]
                         (Object [("text", "new topic!")])
+                  , CacheWrite
                   ]
           assertEqual "effects" effectsExpected testIOResult_effects
     ]
