@@ -25,7 +25,7 @@ import qualified  Data.Text as Text
 import            Network.Wreq
 
 newtype GitterT m a = GitterT (ReaderT Gitter m a)
-    deriving (Applicative, Functor, Monad, MonadDiscourse, MonadIO)
+    deriving (Applicative, Functor, Monad, MonadDiscourse, MonadIO, MonadTrans)
 
 runGitterT :: Gitter -> GitterT m a -> m a
 runGitterT gitter (GitterT readerAction) = runReaderT readerAction gitter
@@ -71,9 +71,4 @@ instance (MonadIO io, MonadThrow io) => MonadGitter (GitterT io) where
       where
         normalizeSpace = ByteString.unwords . ByteString.words
 
-instance MonadTrans GitterT where
-    lift = GitterT . lift
-
-instance (Monad m, MonadCache a m) => MonadCache a (GitterT m) where
-    loadDef = lift . loadDef
-    save = lift . save
+deriving instance (Monad m, MonadCache a m) => MonadCache a (GitterT m)
