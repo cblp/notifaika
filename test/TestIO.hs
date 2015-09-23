@@ -72,10 +72,13 @@ execTestIO testAction = do
 
 testConfig :: Config
 testConfig =
-    Config  { _config_cacheFile = "testcache"
-            , _config_discourseBaseUrl = "test://discouse.example.com/"
-            , _config_gitterBaseUrl = "test://api.gitter.example.com/v1"
-            , _config_gitterRoom = ONETOONE "cblp"
+    Config  { config_cacheFile = "testcache"
+            , config_discourseBaseUrl = "test://discouse.example.com/"
+            , config_gitter =
+                  Gitter  { gitter_baseUrl = "test://api.gitter.example.com/v1"
+                          , gitter_room = ONETOONE "cblp"
+                          , gitter_tokenFile = "/dev/null"
+                          }
             }
 
 mockGitter :: ResourcePath -> Value -> Value

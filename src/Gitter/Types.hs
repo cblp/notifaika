@@ -1,6 +1,7 @@
 module Gitter.Types where
 
 import Data.Aeson.TH
+import Data.String.X
 import Data.Text
 
 type ResourcePath = [Text]
@@ -17,3 +18,10 @@ deriveJSON
                                                   }
                     }
     ''Room
+
+data Gitter = Gitter  { gitter_baseUrl :: String
+                      , gitter_room :: Room
+                      , gitter_tokenFile :: FilePath
+                      }
+
+deriveJSON defaultOptions { fieldLabelModifier = dropPrefix "gitter_" } ''Gitter

@@ -7,6 +7,7 @@ import Discourse
 import Gitter.Monad
 -- global
 import Control.Error
+import Control.Monad.Catch
 import Control.Monad.Logger
 import Control.Monad.Reader
 import Control.Monad.RWS
@@ -21,7 +22,7 @@ class MonadCache a m where
     save :: ToJSON a => a -> m ()
 
 newtype FileCacheT m a = FileCacheT (ReaderT FilePath m a)
-    deriving (Applicative, Functor, Monad, MonadLogger)
+    deriving (Applicative, Functor, Monad, MonadLogger, MonadThrow)
 
 runFileCacheT :: FilePath -> FileCacheT m a -> m a
 runFileCacheT filePath (FileCacheT readerAction) =

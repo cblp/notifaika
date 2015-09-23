@@ -3,6 +3,7 @@ module Discourse where
 import Prelude hiding ( lookup )
 import Control.Error
 import Control.Lens
+import Control.Monad.Catch
 import Control.Monad.Logger
 import Control.Monad.Reader
 import Data.Aeson
@@ -41,7 +42,7 @@ class MonadDiscourse m where
 data Discourse = Discourse { discourse_baseUrl :: String }
 
 newtype DiscourseT m a = DiscourseT (ReaderT Discourse m a)
-    deriving (Applicative, Functor, Monad, MonadIO)
+    deriving (Applicative, Functor, Monad, MonadIO, MonadThrow)
 
 runDiscourseT :: Discourse -> DiscourseT m a -> m a
 runDiscourseT discourse (DiscourseT readerAction) =
@@ -52,7 +53,7 @@ instance MonadDiscourse (DiscourseT IO) where
         Discourse{..} <- ask
         response <- liftIO $ get (discourse_baseUrl <> "/latest.json")
         jsonResponse <- asJSON response
-        let jsonBody = fromMaybe  (error "Can't decode Discourse response") 
+        let jsonBody = fromMaybe  (error "Can't decode Discourse response")
                                   (jsonResponse ^? responseBody)
         case decodeLatestResponse jsonBody of
             Left e -> fail e

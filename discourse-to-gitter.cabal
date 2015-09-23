@@ -18,6 +18,7 @@ library
                       , base
                       , bytestring
                       , errors
+                      , exceptions
                       , lens
                       , lens-aeson
                       , monad-logger

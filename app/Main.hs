@@ -7,7 +7,6 @@ import Discourse
 import Gitter
 import Lib
 -- general
-import Control.Lens
 import Control.Monad.Logger
 import Control.Monad.Reader
 import Data.Aeson
@@ -27,13 +26,12 @@ main = do
     run configFile repostUpdates
   where
     run configFile action = do
-        config <- loadConfig configFile
-        let cacheFile = config ^. config_cacheFile
-            discourse = Discourse
-                { discourse_baseUrl = config ^. config_discourseBaseUrl }
-            gitter = Gitter { gitter_baseUrl = config ^. config_gitterBaseUrl }
+        config@Config{..} <- loadConfig configFile
+        let discourse = Discourse
+                { discourse_baseUrl = config_discourseBaseUrl }
+            gitter = config_gitter
         runDiscourseT discourse .
-            runFileCacheT cacheFile .
+            runFileCacheT config_cacheFile .
                 runGitterT gitter $
                     runReaderT (runStderrLoggingT action) config
 

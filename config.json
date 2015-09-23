@@ -1,9 +1,12 @@
 {
   "cacheFile": "cache",
   "discourseBaseUrl": "http://forum.ruhaskell.org/",
-  "gitterBaseUrl": "https://api.gitter.im/v1",
-  "gitterRoom": {
-    "type": "ONETOONE",
-    "uri": "cblp"
+  "gitter": {
+    "baseUrl": "https://api.gitter.im/v1",
+    "room": {
+      "type": "REPO",
+      "uri": ["cblp", "discourse-to-gitter"]
+    },
+    "tokenFile": "../../felix/config/Gitter/token"
   }
 }
