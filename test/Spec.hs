@@ -29,7 +29,7 @@ main = defaultMain $ testGroup ""
                   , CacheRead
                   , GitterAction ["rooms"] (Object [("uri", "cblp")])
                   , GitterAction
-                        ["room", "exampleroomid", "chatMessages"]
+                        ["rooms", "exampleroomid", "chatMessages"]
                         (Object [("text", "new topic!")])
                   , CacheWrite
                   ]

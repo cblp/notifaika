@@ -50,7 +50,7 @@ runRoomAction :: MonadGitter m => ResourcePath -> Value -> GitterRoomT m Value
 runRoomAction path request = GitterRoomT $ do
     room <- ask
     roomId <- lift $ joinRoom room
-    lift $ runGitterAction (["room", roomId] <> path) request
+    lift $ runGitterAction (["rooms", roomId] <> path) request
 
 joinRoom :: MonadGitter m => Room -> m RoomId
 joinRoom room = do
