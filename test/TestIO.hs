@@ -12,7 +12,6 @@ import Discourse
 import Gitter.Monad
 import Gitter.Types
 -- general
-import Control.Monad.Logger
 import Control.Monad.RWS
 import Data.Aeson
 import Data.ByteString.Lazy as ByteString
@@ -23,8 +22,8 @@ data Effect = CacheRead
             | GitterAction ResourcePath Value
     deriving (Eq, Show)
 
-newtype TestIO a = TestIO (RWST Config [Effect] [Topic] (LoggingT IO) a)
-    deriving (Applicative, Functor, Monad, MonadLogger, MonadReader Config)
+newtype TestIO a = TestIO (RWST Config [Effect] [Topic] IO a)
+    deriving (Applicative, Functor, Monad, MonadReader Config)
 
 instance MonadCache [Topic] TestIO where
     loadDef def = TestIO $ do
@@ -65,8 +64,7 @@ execTestIO :: TestIO () -> IO TestIOResult
 execTestIO testAction = do
     let cache = []
         TestIO rwsAction = testAction
-        loggingAction = execRWST rwsAction testConfig cache
-        ioAction = runStderrLoggingT loggingAction
+        ioAction = execRWST rwsAction testConfig cache
     (testIOResult_cache, testIOResult_effects) <- ioAction
     return TestIOResult{..}
 

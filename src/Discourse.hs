@@ -4,7 +4,6 @@ import Prelude hiding ( lookup )
 import Control.Error
 import Control.Lens
 import Control.Monad.Catch
-import Control.Monad.Logger
 import Control.Monad.Reader
 import Data.Aeson
 import Data.Aeson.Lens
@@ -58,9 +57,6 @@ instance MonadDiscourse (DiscourseT IO) where
         case decodeLatestResponse jsonBody of
             Left e -> fail e
             Right topics -> return topics
-
-instance (Monad m, MonadDiscourse m) => MonadDiscourse (LoggingT m) where
-    getLatest = lift getLatest
 
 instance (Monad m, MonadDiscourse m) => MonadDiscourse (ReaderT r m) where
     getLatest = lift getLatest

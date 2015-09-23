@@ -7,7 +7,6 @@ import Discourse
 import Gitter
 import Lib
 -- general
-import Control.Monad.Logger
 import Control.Monad.Reader
 import Data.Aeson
 import Data.ByteString.Lazy as ByteString
@@ -31,9 +30,8 @@ main = do
                 { discourse_baseUrl = config_discourseBaseUrl }
             gitter = config_gitter
         runDiscourseT discourse .
-            runFileCacheT config_cacheFile .
-                runGitterT gitter $
-                    runReaderT (runStderrLoggingT action) config
+            runFileCacheT config_cacheFile $
+                runGitterT gitter (runReaderT action config)
 
 loadConfig :: FilePath -> IO Config
 loadConfig filePath = do

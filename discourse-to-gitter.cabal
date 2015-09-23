@@ -21,7 +21,6 @@ library
                       , exceptions
                       , lens
                       , lens-aeson
-                      , monad-logger
                       , mtl
                       , wreq
                       , text
@@ -56,7 +55,6 @@ executable discourse-to-gitter-exe
                       , bytestring
                       , discourse-to-gitter
                       , lens
-                      , monad-logger
                       , mtl
                       , text
     default-extensions: OverloadedStrings
@@ -69,7 +67,6 @@ test-suite discourse-to-gitter-test
                       , base
                       , bytestring
                       , discourse-to-gitter
-                      , monad-logger
                       , mtl
                       , tasty
                       , tasty-hunit

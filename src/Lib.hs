@@ -9,7 +9,6 @@ import Discourse
 import Gitter
 import Gitter.Monad
 -- global
-import            Control.Monad.Logger
 import            Control.Monad.Reader
 import            Data.Monoid
 import            Data.Text ( Text )
@@ -25,7 +24,6 @@ detectNewTopics olds =
 type MonadRepost m =  ( MonadCache [Topic] m
                       , MonadDiscourse m
                       , MonadGitter m
-                      , MonadLogger m
                       , MonadReader Config m
                       )
 
@@ -34,9 +32,8 @@ repostUpdates = do
     latestTopics <- Discourse.getLatest
     cachedTopics <- loadDef []
     let newTopics = detectNewTopics cachedTopics latestTopics
-    $logDebug ("newTopics = " <> showText newTopics)
     room <- asks (gitter_room . config_gitter)
-    let message = "new topic!"
+    let message = "new topics: " <> showText newTopics
     withRoom room (sendChatMessage message)
     save latestTopics
 

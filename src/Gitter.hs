@@ -12,7 +12,6 @@ import Discourse
 import Gitter.Monad
 import Gitter.Types
 -- global
-import            Control.Error
 import            Control.Lens
 import            Control.Monad.Catch
 import            Control.Monad.Reader
@@ -66,8 +65,6 @@ instance (MonadIO io, MonadThrow io) => MonadGitter (GitterT io) where
         let token = normalizeSpace tokenFileContents
             url = List.intercalate "/" (gitter_baseUrl : fmap Text.unpack path)
             opts = defaults &~ auth ?= oauth2Bearer token
-        liftIO (errLn ("url = " <> url))
-        liftIO (errLn ("opts = " <> show opts))
         response <- liftIO (postWith opts url apiRequest)
         jsonResponse <- asJSON response
         return (jsonResponse ^. responseBody)

@@ -30,7 +30,12 @@ main = defaultMain $ testGroup ""
                   , GitterAction ["rooms"] (Object [("uri", "cblp")])
                   , GitterAction
                         ["rooms", "exampleroomid", "chatMessages"]
-                        (Object [("text", "new topic!")])
+                        ( Object
+                            [ ( "text"
+                              , "new topics: [Topic {topic_id = 178, topic_created_at = 2015-09-08 18:15:58.152 UTC}]"
+                              )
+                            ]
+                        )
                   , CacheWrite
                   ]
           assertEqual "effects" effectsExpected testIOResult_effects
