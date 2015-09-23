@@ -3,7 +3,7 @@
   "discourseBaseUrl": "http://forum.ruhaskell.org/",
   "gitterBaseUrl": "https://api.gitter.im/v1",
   "gitterRoom": {
-    "tag": "RoomOneToOne",
-    "contents": "cblp"
+    "type": "ONETOONE",
+    "uri": "cblp"
   }
 }

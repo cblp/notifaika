@@ -75,7 +75,7 @@ testConfig =
     Config  { _config_cacheFile = "testcache"
             , _config_discourseBaseUrl = "test://discouse.example.com/"
             , _config_gitterBaseUrl = "test://api.gitter.example.com/v1"
-            , _config_gitterRoom = RoomOneToOne "cblp"
+            , _config_gitterRoom = ONETOONE "cblp"
             }
 
 mockGitter :: ResourcePath -> Value -> Value

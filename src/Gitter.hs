@@ -34,8 +34,8 @@ newtype GitterRoomT m a = GitterRoomT (ReaderT Room m a)
     deriving Functor
 
 roomUri :: Room -> RoomUri
-roomUri (RoomOneToOne user) = user
-roomUri (RoomRepo user repo) = user <> "/" <> repo
+roomUri (ONETOONE user) = user
+roomUri (REPO user repo) = user <> "/" <> repo
 
 withRoom :: MonadGitter gitter => Room -> GitterRoomT gitter a -> gitter a
 withRoom room (GitterRoomT readerAction) =

@@ -9,6 +9,11 @@ type RepoName = Text
 type RoomId = Text
 type RoomUri = Text
 
-data Room = RoomOneToOne UserName | RoomRepo UserName RepoName
+data Room = ONETOONE UserName | REPO UserName RepoName
 
-deriveJSON defaultOptions ''Room
+deriveJSON
+    defaultOptions  { sumEncoding = TaggedObject  { tagFieldName = "type"
+                                                  , contentsFieldName = "uri"
+                                                  }
+                    }
+    ''Room
