@@ -11,6 +11,7 @@ type RoomId = Text
 type RoomUri = Text
 
 data Room = ONETOONE UserName | REPO UserName RepoName
+    deriving Show
 
 deriveJSON
     defaultOptions  { sumEncoding = TaggedObject  { tagFieldName = "type"

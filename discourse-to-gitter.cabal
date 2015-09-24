@@ -17,6 +17,7 @@ library
     build-depends:      aeson
                       , base
                       , bytestring
+                      , containers
                       , errors
                       , exceptions
                       , lens

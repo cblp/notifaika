@@ -11,15 +11,19 @@ import Gitter.Monad
 -- global
 import            Control.Monad.Reader
 import            Data.Monoid
+import qualified  Data.Set as Set
 import            Data.Text ( Text )
 import qualified  Data.Text as Text
+import qualified  Data.Text.IO as Text
 
 detectNewTopics :: [Topic] -> [Topic] -> [Topic]
 detectNewTopics []   =
     return . maximum
 detectNewTopics olds =
-    filter $ \topic ->
-        any (\old -> topic_id old /= topic_id topic && old <= topic) olds
+    let oldIds = Set.fromList (fmap topic_id olds)
+    in  filter $ \topic@Topic{ topic_id = tid } ->
+            Set.notMember tid oldIds
+            && any (\old -> topic_id old /= tid && old <= topic) olds
 
 type MonadRepost m =  ( MonadCache [Topic] m
                       , MonadDiscourse m
