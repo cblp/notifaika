@@ -7,6 +7,6 @@
       "type": "REPO",
       "uri": ["cblp", "discourse-to-gitter"]
     },
-    "tokenFile": "../../felix/config/Gitter/token"
+    "tokenFile": "../../felix/config/Gitter/HaskellCurry-token"
   }
 }
