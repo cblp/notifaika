@@ -10,6 +10,8 @@ import Gitter
 import Gitter.Monad
 -- global
 import            Control.Monad.Reader
+import            Data.IntMap ( (!) )
+import qualified  Data.IntMap as IntMap
 import qualified  Data.Set as Set
 import            Data.Text ( Text )
 import qualified  Data.Text as Text
@@ -31,7 +33,10 @@ type MonadRepost m =  ( MonadCache [Topic] m
 
 repostUpdates :: MonadRepost m => m ()
 repostUpdates = do
-    latestTopics <- Discourse.getLatest
+    Latest{latest_topic_list = TopicList{topicList_topics = latestTopics}, ..}
+        <- Discourse.getLatest
+    let users = IntMap.fromList
+            [(user_id, user_username) | User{..} <- latest_users]
     cachedTopics <- Cache.loadDef []
     let newTopics = detectNewTopics cachedTopics latestTopics
     Config{..} <- ask
@@ -41,7 +46,7 @@ repostUpdates = do
                             , "/t/", topic_slug, "/", showText topic_id ]
             Poster{..} = head topic_posters
             message = mconcat
-                [ showText poster_user_id, " опубликовал на форуме тему «"
+                [ users ! poster_user_id, " опубликовал на форуме тему «"
                   , topic_fancy_title, "»\n"
                 , link
                 ]

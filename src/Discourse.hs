@@ -1,12 +1,10 @@
 module Discourse where
 
 import Prelude
-import Control.Error
 import Control.Lens
 import Control.Monad.Catch
 import Control.Monad.Reader
 import Data.Aeson
-import Data.Aeson.Lens
 import Data.Aeson.TH
 import Data.Monoid
 import Data.Ord
@@ -15,7 +13,7 @@ import Data.Text
 import Data.Time
 import Network.Wreq
 
-data Poster = Poster { poster_user_id :: Integer }
+data Poster = Poster { poster_user_id :: Int }
     deriving (Eq, Show)
 
 deriveJSON defaultOptions{fieldLabelModifier = dropPrefix "poster_"} ''Poster
@@ -33,21 +31,25 @@ instance Ord Topic where
 
 deriveJSON defaultOptions{fieldLabelModifier = dropPrefix "topic_"} ''Topic
 
--- | decode response to "/latest.json" request
-decodeLatestResponse :: Value -> Either String [Topic]
-decodeLatestResponse response = do
-    topicList <- note "\"latest\" must have key \"topic_list\""
-        (response ^? key "topic_list")
-    topics <- note "\"latest.topic_list\" must have key \"topics\""
-        (topicList ^? key "topics")
-    resultToEither (fromJSON topics)
+data User = User { user_id :: Int, user_username :: Text }
+
+deriveJSON defaultOptions{fieldLabelModifier = dropPrefix "user_"} ''User
+
+data TopicList = TopicList { topicList_topics :: [Topic] }
+
+deriveJSON  defaultOptions{fieldLabelModifier = dropPrefix "topicList_"}
+            ''TopicList
+
+data Latest = Latest { latest_topic_list :: TopicList, latest_users :: [User] }
+
+deriveJSON defaultOptions{fieldLabelModifier = dropPrefix "latest_"} ''Latest
 
 resultToEither :: Result a -> Either String a
 resultToEither (Success s)  = Right s
 resultToEither (Error e)    = Left e
 
 class MonadDiscourse m where
-    getLatest :: m [Topic]
+    getLatest :: m Latest
 
 data Discourse = Discourse { discourse_baseUrl :: String }
 
@@ -63,11 +65,7 @@ instance MonadDiscourse (DiscourseT IO) where
         Discourse{..} <- ask
         response <- liftIO $ get (discourse_baseUrl <> "/latest.json")
         jsonResponse <- asJSON response
-        let jsonBody = fromMaybe  (error "Can't decode Discourse response")
-                                  (jsonResponse ^? responseBody)
-        case decodeLatestResponse jsonBody of
-            Left e -> fail e
-            Right topics -> return topics
+        return (jsonResponse ^. responseBody)
 
 instance (Monad m, MonadDiscourse m) => MonadDiscourse (ReaderT r m) where
     getLatest = lift getLatest

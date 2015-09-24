@@ -36,10 +36,7 @@ instance MonadCache [Topic] TestIO where
 instance MonadDiscourse TestIO where
     getLatest = TestIO $ do
         tell [DiscourseGet "/latest.json"]
-        jsonContent <- liftIO (decodeFile "test/data/discourse/latest.json")
-        fromRight (decodeLatestResponse jsonContent)
-      where
-        fromRight = either fail return
+        liftIO (decodeFile "test/data/discourse/latest.json")
 
 instance MonadGitter TestIO where
     runGitterAction path body = do
