@@ -14,7 +14,6 @@ import            Data.Monoid
 import qualified  Data.Set as Set
 import            Data.Text ( Text )
 import qualified  Data.Text as Text
-import qualified  Data.Text.IO as Text
 
 detectNewTopics :: [Topic] -> [Topic] -> [Topic]
 detectNewTopics []   =
@@ -34,12 +33,13 @@ type MonadRepost m =  ( MonadCache [Topic] m
 repostUpdates :: MonadRepost m => m ()
 repostUpdates = do
     latestTopics <- Discourse.getLatest
-    cachedTopics <- loadDef []
+    cachedTopics <- Cache.loadDef []
     let newTopics = detectNewTopics cachedTopics latestTopics
     room <- asks (gitter_room . config_gitter)
     let message = "new topics: " <> showText newTopics
-    withRoom room (sendChatMessage message)
-    save latestTopics
+    unless (null newTopics) $
+        Gitter.withRoom room (sendChatMessage message)
+    Cache.save latestTopics
 
 showText :: Show a => a -> Text
 showText = Text.pack . show
