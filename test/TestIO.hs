@@ -19,7 +19,7 @@ import Data.ByteString.Lazy as ByteString
 data Effect = CacheRead
             | CacheWrite
             | DiscourseGet String
-            | GitterAction ResourcePath Value
+            | GitterAction ResourcePath
     deriving (Eq, Show)
 
 newtype TestIO a = TestIO (RWST Config [Effect] [Topic] IO a)
@@ -43,7 +43,7 @@ instance MonadDiscourse TestIO where
 
 instance MonadGitter TestIO where
     runGitterAction path body = do
-        TestIO $ tell [GitterAction path body]
+        TestIO $ tell [GitterAction path]
         return (mockGitter path body)
 
 decodeFile :: FromJSON a => FilePath -> IO a

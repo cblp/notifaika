@@ -4,7 +4,6 @@ import TestIO
 import Discourse
 import Lib
 -- global
-import Data.Aeson
 import Data.Time.Clock.POSIX
 import Test.Tasty
 import Test.Tasty.HUnit
@@ -27,15 +26,8 @@ main = defaultMain $ testGroup ""
           let effectsExpected =
                   [ DiscourseGet "/latest.json"
                   , CacheRead
-                  , GitterAction ["rooms"] (Object [("uri", "cblp")])
-                  , GitterAction
-                        ["rooms", "exampleroomid", "chatMessages"]
-                        ( Object
-                            [ ( "text"
-                              , "new topics: [Topic {topic_id = 178, topic_created_at = 2015-09-08 18:15:58.152 UTC}]"
-                              )
-                            ]
-                        )
+                  , GitterAction ["rooms"]
+                  , GitterAction ["rooms", "exampleroomid", "chatMessages"]
                   , CacheWrite
                   ]
           assertEqual "effects" effectsExpected testIOResult_effects
@@ -43,6 +35,9 @@ main = defaultMain $ testGroup ""
 
 topic :: Integer -> Integer -> Topic
 topic tid time =
-    Topic { topic_id = tid
-          , topic_created_at = posixSecondsToUTCTime (fromIntegral time)
+    Topic { topic_created_at = posixSecondsToUTCTime (fromIntegral time)
+          , topic_fancy_title = "example title"
+          , topic_id = tid
+          , topic_posters = []
+          , topic_slug = "example"
           }

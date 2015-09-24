@@ -1,6 +1,6 @@
 {
   "cacheFile": "cache",
-  "discourseBaseUrl": "http://forum.ruhaskell.org/",
+  "discourseBaseUrl": "http://forum.ruhaskell.org",
   "gitter": {
     "baseUrl": "https://api.gitter.im/v1",
     "room": {

@@ -1,6 +1,6 @@
 module Discourse where
 
-import Prelude hiding ( lookup )
+import Prelude
 import Control.Error
 import Control.Lens
 import Control.Monad.Catch
@@ -11,10 +11,21 @@ import Data.Aeson.TH
 import Data.Monoid
 import Data.Ord
 import Data.String.X
+import Data.Text
 import Data.Time
 import Network.Wreq
 
-data Topic = Topic { topic_id :: Integer, topic_created_at :: UTCTime }
+data Poster = Poster { poster_user_id :: Integer }
+    deriving (Eq, Show)
+
+deriveJSON defaultOptions{fieldLabelModifier = dropPrefix "poster_"} ''Poster
+
+data Topic = Topic  { topic_created_at :: UTCTime
+                    , topic_fancy_title :: Text
+                    , topic_id :: Integer
+                    , topic_posters :: [Poster]
+                    , topic_slug :: Text
+                    }
     deriving (Eq, Show)
 
 instance Ord Topic where

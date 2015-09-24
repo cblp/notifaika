@@ -10,7 +10,6 @@ import Gitter
 import Gitter.Monad
 -- global
 import            Control.Monad.Reader
-import            Data.Monoid
 import qualified  Data.Set as Set
 import            Data.Text ( Text )
 import qualified  Data.Text as Text
@@ -35,9 +34,17 @@ repostUpdates = do
     latestTopics <- Discourse.getLatest
     cachedTopics <- Cache.loadDef []
     let newTopics = detectNewTopics cachedTopics latestTopics
-    room <- asks (gitter_room . config_gitter)
-    let message = "new topics: " <> showText newTopics
-    unless (null newTopics) $
+    Config{..} <- ask
+    let room = gitter_room config_gitter
+    forM_ newTopics $ \Topic{..} -> do
+        let link = mconcat  [ Text.pack config_discourseBaseUrl
+                            , "/t/", topic_slug, "/", showText topic_id ]
+            Poster{..} = head topic_posters
+            message = mconcat
+                [ showText poster_user_id, " опубликовал на форуме тему «"
+                  , topic_fancy_title, "»\n"
+                , link
+                ]
         Gitter.withRoom room (sendChatMessage message)
     Cache.save latestTopics
 
