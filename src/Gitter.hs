@@ -9,6 +9,7 @@ module Gitter
 -- component
 import Cache
 import Discourse
+import RSS
 import Gitter.Monad
 import Gitter.Types
 -- global
@@ -25,7 +26,7 @@ import qualified  Data.Text as Text
 import            Network.Wreq
 
 newtype GitterT m a = GitterT (ReaderT Gitter m a)
-    deriving (Applicative, Functor, Monad, MonadDiscourse, MonadIO, MonadTrans)
+    deriving (Applicative, Functor, Monad, MonadDiscourse, MonadRss, MonadIO, MonadTrans)
 
 runGitterT :: Gitter -> GitterT m a -> m a
 runGitterT gitter (GitterT readerAction) = runReaderT readerAction gitter

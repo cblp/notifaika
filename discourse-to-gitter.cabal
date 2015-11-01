@@ -27,6 +27,9 @@ library
                       , text
                       , time
                       , unordered-containers
+                      , xml-lens
+                      , xml-conduit
+                      , hashable
     default-extensions: FlexibleContexts
                         FlexibleInstances
                         GeneralizedNewtypeDeriving
@@ -43,10 +46,13 @@ library
                         Gitter.Monad
                         Gitter.Types
                         Lib
+                        RSS
+                        RSS.Types
     ghc-options:        -Wall -Werror
     hs-source-dirs:     src
     other-modules:      Control.Monad.Trans.X
                         Data.String.X
+                        RSS.Cache
 
 executable discourse-to-gitter-exe
     hs-source-dirs:     app

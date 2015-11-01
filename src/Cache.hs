@@ -4,6 +4,7 @@ module Cache where
 
 -- component
 import Discourse
+import RSS
 import Gitter.Monad
 -- global
 import Control.Error
@@ -54,6 +55,7 @@ instance (Monad m, MonadCache a m) => MonadCache a (ReaderT r m) where
     save = lift . save
 
 deriving instance (Monad m, MonadDiscourse m) => MonadDiscourse (FileCacheT m)
+deriving instance (Monad m, MonadRss m) => MonadRss (FileCacheT m)
 
 instance MonadReader r m => MonadReader r (FileCacheT m) where
     ask = lift ask

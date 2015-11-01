@@ -8,5 +8,10 @@
       "uri": ["cblp", "discourse-to-gitter"]
     },
     "tokenFile": "../../felix/config/Gitter/HaskellCurry-token"
-  }
+  },
+  "rssCache": "cacherss",
+  "rss": {
+      "feeds": ["http://bananasandlenses.net/feed.xml"]
+    , "prepend": false
+   }
 }

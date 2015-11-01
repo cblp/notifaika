@@ -5,6 +5,7 @@ import Cache
 import Config
 import Discourse
 import Gitter
+import RSS
 import Lib
 -- general
 import Control.Monad.Reader
@@ -22,16 +23,18 @@ main = do
     let configFile = case args of
             [cnf] -> cnf
             _ -> error usage
-    run configFile repostUpdates
+    run configFile
   where
-    run configFile action = do
+    run configFile = do
         config@Config{..} <- loadConfig configFile
         let discourse = Discourse
                 { discourse_baseUrl = config_discourseBaseUrl }
+            rss = config_rss
             gitter = config_gitter
-        runDiscourseT discourse .
-            runFileCacheT config_cacheFile $
-                runGitterT gitter (runReaderT action config)
+        runDiscourseT discourse . runFileCacheT config_cacheFile $
+            runGitterT gitter (runReaderT repostUpdates config)
+        runRssT rss . runFileCacheT config_rssCache $
+            runGitterT gitter (runReaderT repostRSS config)
 
 loadConfig :: FilePath -> IO Config
 loadConfig filePath = do

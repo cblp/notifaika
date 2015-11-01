@@ -6,6 +6,7 @@ module Lib where
 import Cache
 import Config
 import Discourse
+import RSS
 import Gitter
 import Gitter.Monad
 -- global
@@ -52,6 +53,28 @@ repostUpdates = do
                 ]
         Gitter.withRoom room (sendChatMessage message)
     Cache.save latestTopics
+
+-- | Load new RSS and announce them.
+repostRSS :: ( MonadGitter m
+             , MonadRss m
+             , MonadReader Config m
+             , MonadCache RSS.RSSCache m
+             , MonadIO m) => m ()
+repostRSS = do
+    feeds <- RSS.loadFeeds
+    cache <- Cache.loadDef RSS.emptyCache
+    let (newCache, newItems) =
+          RSS.updateFeeds (RSS.initializeFeeds cache feeds) feeds
+    Config{..} <- ask
+    let room = gitter_room config_gitter
+    forM_ newItems $ \Item{..} -> do
+        let message = mconcat
+                [ "Новый пост «", item_title
+                , "» в ленте «", item_channel, "»\n"
+                , item_link
+                ]
+        Gitter.withRoom room (sendChatMessage message)
+    Cache.save newCache
 
 showText :: Show a => a -> Text
 showText = Text.pack . show

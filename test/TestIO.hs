@@ -8,6 +8,7 @@ module TestIO (Effect(..), TestIO, TestIOResult(..), execTestIO) where
 -- package
 import Cache
 import Config
+import RSS.Types
 import Discourse
 import Gitter.Monad
 import Gitter.Types
@@ -74,6 +75,8 @@ testConfig =
                           , gitter_room = ONETOONE "cblp"
                           , gitter_tokenFile = "/dev/null"
                           }
+            , config_rss = RSS []
+            , config_rssCache = "testcacherss"
             }
 
 mockGitter :: ResourcePath -> Value -> Value
