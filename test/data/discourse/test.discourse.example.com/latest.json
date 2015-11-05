@@ -1,0 +1,323 @@
+{
+  "topic_list": {
+    "can_create_topic": false,
+    "draft": null,
+    "draft_key": "new_topic",
+    "draft_sequence": null,
+    "more_topics_url": "/latest.json?no_definitions=true&page=1",
+    "per_page": 30,
+    "topics": [
+      {
+        "archetype": "regular",
+        "archived": false,
+        "bookmarked": null,
+        "bumped": true,
+        "bumped_at": "2015-02-03T18:46:20.968Z",
+        "category_id": 1,
+        "closed": false,
+        "created_at": "2015-01-30T11:37:48.061Z",
+        "excerpt": "Приветствуем вас на нашем уютном форуме!",
+        "fancy_title": "Добро пожаловать на русскоязычный форум Haskell-разработчиков",
+        "has_summary": false,
+        "highest_post_number": 5,
+        "id": 8,
+        "image_url": null,
+        "last_posted_at": "2015-02-03T18:46:20.968Z",
+        "last_poster_username": "dshevchenko",
+        "like_count": 3,
+        "liked": null,
+        "pinned": true,
+        "pinned_globally": true,
+        "posters": [
+          {
+            "description": "Автор",
+            "extras": null,
+            "user_id": -1
+          },
+          {
+            "description": "Частый автор",
+            "extras": null,
+            "user_id": 18
+          },
+          {
+            "description": "Частый автор",
+            "extras": null,
+            "user_id": 13
+          },
+          {
+            "description": "Частый автор",
+            "extras": null,
+            "user_id": 19
+          },
+          {
+            "description": "Последний автор",
+            "extras": "latest",
+            "user_id": 1
+          }
+        ],
+        "posts_count": 5,
+        "reply_count": 2,
+        "slug": "dobro-pozhalovat-na-russkoyazychnyj-forum-haskell-razrabotchikov",
+        "title": "Добро пожаловать на русскоязычный форум Haskell-разработчиков",
+        "unpinned": null,
+        "unseen": false,
+        "views": 41,
+        "visible": true
+      },
+      {
+        "archetype": "regular",
+        "archived": false,
+        "bookmarked": null,
+        "bumped": true,
+        "bumped_at": "2015-03-20T08:34:27.594Z",
+        "category_id": 10,
+        "closed": false,
+        "created_at": "2015-03-20T08:34:27.565Z",
+        "fancy_title": "Golang challenge 1",
+        "has_summary": false,
+        "highest_post_number": 1,
+        "id": 109,
+        "image_url": null,
+        "last_posted_at": "2015-03-20T08:34:27.594Z",
+        "last_poster_username": "wiz",
+        "like_count": 0,
+        "liked": null,
+        "pinned": false,
+        "pinned_globally": false,
+        "posters": [
+          {
+            "description": "Автор, Последний автор",
+            "extras": "latest single",
+            "user_id": 13
+          }
+        ],
+        "posts_count": 1,
+        "reply_count": 0,
+        "slug": "golang-challenge-1",
+        "title": "Golang challenge 1",
+        "unpinned": null,
+        "unseen": false,
+        "views": 12,
+        "visible": true
+      }
+    ]
+  },
+  "users": [
+    {
+      "avatar_template": "/user_avatar/forum.ruhaskell.org/system/{size}/1.png",
+      "id": -1,
+      "uploaded_avatar_id": 1,
+      "username": "system"
+    },
+    {
+      "avatar_template": "/letter_avatar/pasha_r/{size}/2.png",
+      "id": 18,
+      "uploaded_avatar_id": null,
+      "username": "Pasha_R"
+    },
+    {
+      "avatar_template": "/user_avatar/forum.ruhaskell.org/wiz/{size}/13.png",
+      "id": 13,
+      "uploaded_avatar_id": 13,
+      "username": "wiz"
+    },
+    {
+      "avatar_template": "/user_avatar/forum.ruhaskell.org/singularity/{size}/18.png",
+      "id": 19,
+      "uploaded_avatar_id": 18,
+      "username": "Singularity"
+    },
+    {
+      "avatar_template": "/user_avatar/forum.ruhaskell.org/dshevchenko/{size}/4.png",
+      "id": 1,
+      "uploaded_avatar_id": 4,
+      "username": "dshevchenko"
+    },
+    {
+      "avatar_template": "/user_avatar/forum.ruhaskell.org/astynax/{size}/19.png",
+      "id": 20,
+      "uploaded_avatar_id": 19,
+      "username": "astynax"
+    },
+    {
+      "avatar_template": "/user_avatar/forum.ruhaskell.org/geraldus/{size}/25.png",
+      "id": 27,
+      "uploaded_avatar_id": 25,
+      "username": "Geraldus"
+    },
+    {
+      "avatar_template": "/user_avatar/forum.ruhaskell.org/smoke853/{size}/7.png",
+      "id": 12,
+      "uploaded_avatar_id": 7,
+      "username": "smoke853"
+    },
+    {
+      "avatar_template": "/letter_avatar/welf/{size}/2.png",
+      "id": 42,
+      "uploaded_avatar_id": null,
+      "username": "welf"
+    },
+    {
+      "avatar_template": "/user_avatar/forum.ruhaskell.org/govorun/{size}/85.png",
+      "id": 76,
+      "uploaded_avatar_id": 85,
+      "username": "govorun"
+    },
+    {
+      "avatar_template": "/user_avatar/forum.ruhaskell.org/tss93/{size}/86.png",
+      "id": 77,
+      "uploaded_avatar_id": 86,
+      "username": "tss93"
+    },
+    {
+      "avatar_template": "/user_avatar/forum.ruhaskell.org/tonal/{size}/84.png",
+      "id": 75,
+      "uploaded_avatar_id": 84,
+      "username": "tonal"
+    },
+    {
+      "avatar_template": "/user_avatar/forum.ruhaskell.org/eryx67/{size}/82.png",
+      "id": 65,
+      "uploaded_avatar_id": 82,
+      "username": "eryx67"
+    },
+    {
+      "avatar_template": "/letter_avatar/yk_/{size}/2.png",
+      "id": 78,
+      "uploaded_avatar_id": null,
+      "username": "yk_"
+    },
+    {
+      "avatar_template": "/user_avatar/forum.ruhaskell.org/2heoh/{size}/79.png",
+      "id": 71,
+      "uploaded_avatar_id": 79,
+      "username": "2heoh"
+    },
+    {
+      "avatar_template": "/user_avatar/forum.ruhaskell.org/kolodeznydiver/{size}/50.png",
+      "id": 40,
+      "uploaded_avatar_id": 50,
+      "username": "KolodeznyDiver"
+    },
+    {
+      "avatar_template": "/user_avatar/forum.ruhaskell.org/qnikst/{size}/6.png",
+      "id": 4,
+      "uploaded_avatar_id": 6,
+      "username": "qnikst"
+    },
+    {
+      "avatar_template": "/letter_avatar/wuzzapcom/{size}/2.png",
+      "id": 66,
+      "uploaded_avatar_id": null,
+      "username": "wuzzapcom"
+    },
+    {
+      "avatar_template": "/user_avatar/forum.ruhaskell.org/cblp/{size}/30.png",
+      "id": 30,
+      "uploaded_avatar_id": 30,
+      "username": "cblp"
+    },
+    {
+      "avatar_template": "/user_avatar/forum.ruhaskell.org/dredozubov/{size}/57.png",
+      "id": 23,
+      "uploaded_avatar_id": 57,
+      "username": "dredozubov"
+    },
+    {
+      "avatar_template": "/user_avatar/forum.ruhaskell.org/lelf/{size}/5.png",
+      "id": 3,
+      "uploaded_avatar_id": 5,
+      "username": "lelf"
+    },
+    {
+      "avatar_template": "/letter_avatar/izubkov/{size}/2.png",
+      "id": 38,
+      "uploaded_avatar_id": null,
+      "username": "izubkov"
+    },
+    {
+      "avatar_template": "/letter_avatar/nixorn/{size}/2.png",
+      "id": 28,
+      "uploaded_avatar_id": null,
+      "username": "nixorn"
+    },
+    {
+      "avatar_template": "/letter_avatar/ivana/{size}/2.png",
+      "id": 7,
+      "uploaded_avatar_id": null,
+      "username": "Ivana"
+    },
+    {
+      "avatar_template": "/user_avatar/forum.ruhaskell.org/s9gf4ult/{size}/60.png",
+      "id": 54,
+      "uploaded_avatar_id": 60,
+      "username": "s9gf4ult"
+    },
+    {
+      "avatar_template": "/letter_avatar/swamp_agr/{size}/2.png",
+      "id": 57,
+      "uploaded_avatar_id": null,
+      "username": "swamp_agr"
+    },
+    {
+      "avatar_template": "/user_avatar/forum.ruhaskell.org/lierdakil/{size}/70.png",
+      "id": 61,
+      "uploaded_avatar_id": 70,
+      "username": "lierdakil"
+    },
+    {
+      "avatar_template": "/user_avatar/forum.ruhaskell.org/b0oh/{size}/21.png",
+      "id": 22,
+      "uploaded_avatar_id": 21,
+      "username": "b0oh"
+    },
+    {
+      "avatar_template": "/letter_avatar/denis_shevchenko/{size}/2.png",
+      "id": 2,
+      "uploaded_avatar_id": null,
+      "username": "Denis_Shevchenko"
+    },
+    {
+      "avatar_template": "/user_avatar/forum.ruhaskell.org/maximkulkin/{size}/16.png",
+      "id": 17,
+      "uploaded_avatar_id": 16,
+      "username": "MaximKulkin"
+    },
+    {
+      "avatar_template": "/user_avatar/forum.ruhaskell.org/leebdeveloper/{size}/53.png",
+      "id": 44,
+      "uploaded_avatar_id": 53,
+      "username": "LeebDeveloper"
+    },
+    {
+      "avatar_template": "/user_avatar/forum.ruhaskell.org/leventov/{size}/59.png",
+      "id": 50,
+      "uploaded_avatar_id": 59,
+      "username": "leventov"
+    },
+    {
+      "avatar_template": "/letter_avatar/dir0k0l/{size}/2.png",
+      "id": 46,
+      "uploaded_avatar_id": null,
+      "username": "Dir0k0l"
+    },
+    {
+      "avatar_template": "/letter_avatar/zudov/{size}/2.png",
+      "id": 10,
+      "uploaded_avatar_id": null,
+      "username": "zudov"
+    },
+    {
+      "avatar_template": "/letter_avatar/bush/{size}/2.png",
+      "id": 8,
+      "uploaded_avatar_id": null,
+      "username": "Bush"
+    },
+    {
+      "avatar_template": "/letter_avatar/qspider/{size}/2.png",
+      "id": 43,
+      "uploaded_avatar_id": null,
+      "username": "QSpider"
+    }
+  ]
+}

@@ -1,16 +1,14 @@
 module Main where
 
 -- component
-import Cache
+import Cache.Persist
 import Config
-import Discourse
 import Gitter
 import Lib
 -- general
 import Control.Monad.Reader
-import Data.Aeson
-import Data.ByteString.Lazy as ByteString
-import Data.Monoid
+import Data.Aeson.X
+import Data.String
 import System.Environment
 
 usage :: String
@@ -22,20 +20,7 @@ main = do
     let configFile = case args of
             [cnf] -> cnf
             _ -> error usage
-    run configFile repostUpdates
-  where
-    run configFile action = do
-        config@Config{..} <- loadConfig configFile
-        let discourse = Discourse
-                { discourse_baseUrl = config_discourseBaseUrl }
-            gitter = config_gitter
-        runDiscourseT discourse .
-            runFileCacheT config_cacheFile $
-                runGitterT gitter (runReaderT action config)
-
-loadConfig :: FilePath -> IO Config
-loadConfig filePath = do
-    contents <- ByteString.readFile filePath
-    either decodeError return $ eitherDecode contents
-  where
-    decodeError err = error ("Cannot decode " <> filePath <> ": " <> err)
+    config@Config{..} <- decodeFile configFile
+    runPersistCacheT (fromString config_cacheFile) .
+        runGitterT config_gitter $
+            runReaderT repostUpdates config

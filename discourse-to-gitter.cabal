@@ -22,23 +22,33 @@ library
                       , exceptions
                       , lens
                       , lens-aeson
+                      , monad-control
                       , mtl
-                      , wreq
+                      , persistent
+                      , persistent-sqlite
+                      , persistent-template
                       , text
                       , time
                       , unordered-containers
+                      , wreq
     default-extensions: FlexibleContexts
                         FlexibleInstances
+                        GADTs
                         GeneralizedNewtypeDeriving
                         MultiParamTypeClasses
                         OverloadedStrings
+                        RankNTypes
                         RecordWildCards
                         StandaloneDeriving
                         TemplateHaskell
+                        TypeFamilies
     default-language:   Haskell2010
     exposed-modules:    Cache
+                        Cache.Persist
                         Config
+                        Data.Aeson.X
                         Discourse
+                        EventSource
                         Gitter
                         Gitter.Monad
                         Gitter.Types
@@ -68,10 +78,16 @@ test-suite discourse-to-gitter-test
     build-depends:      aeson
                       , base
                       , bytestring
+                      , containers
+                      , directory
                       , discourse-to-gitter
+                      , exceptions
+                      , filepath
+                      , MissingH
                       , mtl
                       , tasty
                       , tasty-hunit
+                      , temporary
                       , text
                       , time
     default-extensions: OverloadedLists

@@ -1,57 +1,56 @@
-{-# LANGUAGE ConstraintKinds #-}
+{-# LANGUAGE ConstraintKinds, NamedFieldPuns #-}
 
 module Lib where
 
 -- component
 import Cache
 import Config
-import Discourse
+import EventSource
 import Gitter
 import Gitter.Monad
 -- global
+import            Control.Monad.Catch
 import            Control.Monad.Reader
-import            Data.IntMap ( (!) )
-import qualified  Data.IntMap as IntMap
-import qualified  Data.Set as Set
+import            Data.List as List
+import qualified  Data.Set  as Set
 import            Data.Text ( Text )
 import qualified  Data.Text as Text
 
-detectNewTopics :: [Topic] -> [Topic] -> [Topic]
-detectNewTopics []   =
-    return . maximum
-detectNewTopics olds =
-    let oldIds = Set.fromList (fmap topic_id olds)
-    in  filter $ \topic@Topic{ topic_id = tid } ->
-            Set.notMember tid oldIds
-            && any (\old -> topic_id old /= tid && old <= topic) olds
+-- | Takes (cache, current topics) and returns (new cache, new topics)
+detectNewTopics :: (Maybe [Eid], [Topic]) -> ([Eid], [Topic])
+detectNewTopics (Nothing, current) = (fmap topic_eid current, [])
+detectNewTopics (Just olds, current) =
+    let oldsSet = Set.fromList olds
+        isNew topic = Set.notMember (topic_eid topic) oldsSet
+        news = filter isNew current
+    in  (olds `union` fmap topic_eid news, news)
 
-type MonadRepost m =  ( MonadCache [Topic] m
-                      , MonadDiscourse m
+makeMessage :: EventSource -> Topic -> Text
+makeMessage = error "makeMessage"
+
+type MonadRepost m =  ( MonadCache m
                       , MonadGitter m
+                      , MonadEventSource m
+                      , MonadIO m
                       , MonadReader Config m
+                      , MonadThrow m
                       )
 
 repostUpdates :: MonadRepost m => m ()
 repostUpdates = do
-    Latest{latest_topic_list = TopicList{topicList_topics = latestTopics}, ..}
-        <- Discourse.getLatest
-    let users = IntMap.fromList
-            [(user_id, user_username) | User{..} <- latest_users]
-    cachedTopics <- Cache.loadDef []
-    let newTopics = detectNewTopics cachedTopics latestTopics
-    Config{..} <- ask
+    Config{config_gitter, config_sources} <- ask
     let room = gitter_room config_gitter
-    forM_ newTopics $ \Topic{..} -> do
-        let link = mconcat  [ Text.pack config_discourseBaseUrl
-                            , "/t/", topic_slug, "/", showText topic_id ]
-            Poster{..} = head topic_posters
-            message = mconcat
-                [ users ! poster_user_id, " опубликовал на форуме тему «"
-                  , topic_fancy_title, "»\n"
-                , link
-                ]
-        Gitter.withRoom room (sendChatMessage message)
-    Cache.save latestTopics
+    forM_ config_sources $ \source -> do
+        currentTopics <- getTopics source
+        cachedTopics <- Cache.load source
+        let (cachedTopics', newTopics) =
+                detectNewTopics (cachedTopics, currentTopics)
+        forM_ newTopics $ \topic -> do
+            let message = makeMessage source topic
+            -- TODO move withRoom above forM_
+            Gitter.withRoom room (sendChatMessage message)
+        when (cachedTopics /= Just cachedTopics') $
+            Cache.save source cachedTopics'
 
 showText :: Show a => a -> Text
 showText = Text.pack . show

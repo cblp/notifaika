@@ -1,5 +1,5 @@
 {
-  "cacheFile": "cache",
+  "cacheFile": "cache.sqlite",
   "discourseBaseUrl": "http://forum.ruhaskell.org",
   "gitter": {
     "baseUrl": "https://api.gitter.im/v1",

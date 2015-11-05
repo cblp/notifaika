@@ -1,6 +1,7 @@
 {-# LANGUAGE  FlexibleInstances
             , GeneralizedNewtypeDeriving
             , MultiParamTypeClasses
+            , NamedFieldPuns
   #-}
 
 module TestIO (Effect(..), TestIO, TestIOResult(..), execTestIO) where
@@ -9,82 +10,97 @@ module TestIO (Effect(..), TestIO, TestIOResult(..), execTestIO) where
 import Cache
 import Config
 import Discourse
+import EventSource
 import Gitter.Monad
 import Gitter.Types
 -- general
-import Control.Monad.RWS
-import Data.Aeson
-import Data.ByteString.Lazy as ByteString
+import            Control.Monad.Catch
+import            Control.Monad.RWS
+import            Data.Aeson.X
+import            Data.Function
+import            Data.List         as List
+import            Data.Map          as Map
+import qualified  Data.String.Utils as String
+import            System.Directory
+import            System.FilePath
 
 data Effect = CacheRead
             | CacheWrite
-            | DiscourseGet String
+            | EventsGet
             | GitterAction ResourcePath
     deriving (Eq, Show)
 
-newtype TestIO a = TestIO (RWST Config [Effect] [Topic] IO a)
-    deriving (Applicative, Functor, Monad, MonadReader Config)
+type TestCache = Map EventSource (Maybe [Eid])
 
-instance MonadCache [Topic] TestIO where
-    loadDef def = TestIO $ do
+newtype TestIO a = TestIO (RWST Config [Effect] TestCache IO a)
+    deriving (Applicative, Functor, Monad, MonadIO, MonadReader Config, MonadThrow)
+
+instance MonadCache TestIO where
+    load source = TestIO $ do
         tell [CacheRead]
-        loadDef def
-    save val = TestIO $ do
+        gets (join . Map.lookup source)
+    save source eids = TestIO $ do
         tell [CacheWrite]
-        save val
-
-instance MonadDiscourse TestIO where
-    getLatest = TestIO $ do
-        tell [DiscourseGet "/latest.json"]
-        liftIO (decodeFile "test/data/discourse/latest.json")
+        modify (Map.insertWith munion source (Just eids))
+      where
+        munion Nothing    mys       = mys
+        munion mxs        Nothing   = mxs
+        munion (Just xs)  (Just ys) = Just (xs `List.union` ys)
 
 instance MonadGitter TestIO where
-    runGitterAction path body = do
-        TestIO $ tell [GitterAction path]
+    runGitterAction path body = TestIO $ do
+        tell [GitterAction path]
         return (mockGitter path body)
+      where
+        mockGitter :: ResourcePath -> Value -> Value
+        mockGitter url req =
+            let err = error
+                    ("don't know how to mock " <> show url <> " " <> show req)
+            in case url of
+                ["rooms"] -> case req of
+                    Object [("uri", "cblp")] -> Object [("id", "exampleroomid")]
+                    _ -> err
+                ["room", "exampleroomid", "chatMessages"] ->
+                    case req of
+                        "{\"text\":\"new topic!\"}" -> "{}"
+                        _ -> err
+                _ -> error ("don't know how to mock " <> show url)
 
-decodeFile :: FromJSON a => FilePath -> IO a
-decodeFile filepath = do
-    bytes <- ByteString.readFile filepath
-    let decodeResult = eitherDecode bytes
-    case decodeResult of
-        Left decodeError ->
-            error ("Cannot decode file \"" <> filepath <> "\": " <> decodeError)
-        Right value ->
-            return value
+instance MonadEventSource TestIO where
+    getTopics (Discourse url) = TestIO $ do
+        tell [EventsGet]
+        let dataFileName = url  & String.replace "/" "."
+                            & String.replace ":" "."
+                            & String.replace "..." "."
+            dataFilePath = "test/data/discourse" </> dataFileName </> "latest.json"
+        dataFileExists <- liftIO (doesFileExist dataFilePath)
+        if dataFileExists then do
+            Latest{latest_topic_list=TopicList{topicList_topics}}
+                <- liftIO (decodeFile dataFilePath)
+            return topicList_topics
+        else
+            return []
 
-data TestIOResult = TestIOResult  { testIOResult_effects  :: [Effect]
-                                  , testIOResult_cache    :: [Topic]
-                                  }
+data TestIOResult = TestIOResult
+    { testIOResult_effects  :: [Effect]
+    , testIOResult_cache    :: TestCache
+    }
 
-execTestIO :: TestIO () -> IO TestIOResult
-execTestIO testAction = do
-    let cache = []
-        TestIO rwsAction = testAction
-        ioAction = execRWST rwsAction testConfig cache
-    (testIOResult_cache, testIOResult_effects) <- ioAction
-    return TestIOResult{..}
-
-testConfig :: Config
-testConfig =
-    Config  { config_cacheFile = "testcache"
-            , config_discourseBaseUrl = "test://discouse.example.com/"
-            , config_gitter =
-                  Gitter  { gitter_baseUrl = "test://api.gitter.example.com/v1"
-                          , gitter_room = ONETOONE "cblp"
-                          , gitter_tokenFile = "/dev/null"
-                          }
+execTestIO :: TestCache -> TestIO () -> IO TestIOResult
+execTestIO initCache testAction = do
+    let cacheFile = "test.sqlite"
+        sources = Map.keys initCache
+        config = Config
+            { config_cacheFile = cacheFile
+            , config_sources = sources
+            , config_gitter = Gitter
+                  { gitter_baseUrl = "test://api.gitter.example.com/v1"
+                  , gitter_room = ONETOONE "cblp"
+                  , gitter_tokenFile = "/dev/null"
+                  }
             }
 
-mockGitter :: ResourcePath -> Value -> Value
-mockGitter url req =
-    let err = error ("don't know how to mock " <> show url <> " " <> show req)
-    in case url of
-        ["rooms"] -> case req of
-            Object [("uri", "cblp")] -> Object [("id", "exampleroomid")]
-            _ -> err
-        ["room", "exampleroomid", "chatMessages"] ->
-            case req of
-                "{\"text\":\"new topic!\"}" -> "{}"
-                _ -> err
-        _ -> error ("don't know how to mock " <> show url)
+    let TestIO rwsAction = testAction
+        ioAction = execRWST rwsAction config initCache
+    (testIOResult_cache, testIOResult_effects) <- ioAction
+    return TestIOResult{..}
