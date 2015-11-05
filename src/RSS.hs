@@ -24,14 +24,14 @@ import Data.Foldable
 import Data.Monoid
 import qualified Data.Set as Set
 import qualified Data.Text as Text
-import qualified Data.HashMap.Strict as HM
+import qualified Data.HashMap.Strict as HashMap
 import Text.XML.Lens
 import Text.XML
 import Control.Monad.Reader
 import Control.Monad.Catch
 
 -- | Basic RSS monad.
-newtype RssT m a = RssT { _runRssT :: ReaderT RSS m a }
+newtype RssT m a = RssT ( ReaderT RSS m a )
     deriving (Functor, Applicative, Monad, MonadIO, MonadTrans, MonadThrow)
 
 -- | Run RSS action.
@@ -77,19 +77,19 @@ extractItems xml = concat $
 initializeFeeds :: RSSCache -> [(FeedUrl,[Item])] -> RSSCache
 initializeFeeds = foldl' initialize
   where
-    initialize c@(RSSCache h) (u,l) = case HM.lookup u h of
-        Nothing -> RSSCache (HM.insert u (item_link <$> l) h)
-        Just _  -> c
+    initialize (RSSCache hash) (url,link) = case HashMap.lookup url hash of
+        Nothing -> RSSCache (HashMap.insert url (item_link <$> link) hash)
+        Just _  -> RSSCache hash
 
 -- | Update cache, by instering all new feeds, returns new cache and
 -- items that were added.
 updateFeeds :: RSSCache -> [(FeedUrl, [Item])] -> (RSSCache, [Item])
-updateFeeds z = foldl' (\(c,n) f -> updateFeed c f n) (z,[])
+updateFeeds cache = foldl' updateFeed (cache,[])
    where
-     updateFeed (RSSCache s) (url, itms) n
-         = (RSSCache (HM.insert url new s), added <> n)
+     updateFeed (RSSCache s, new) (url, items)
+         = (RSSCache (HashMap.insert url newInFeed s), added <> new)
        where
-         old  = HM.lookupDefault [] url s
+         old  = HashMap.lookupDefault [] url s
          sOld = Set.fromList old
-         added  = filter ((`Set.notMember` sOld) . item_link) itms
-         new = old <> (item_link <$> added)
+         added  = filter ((`Set.notMember` sOld) . item_link) items
+         newInFeed = old <> (item_link <$> added)

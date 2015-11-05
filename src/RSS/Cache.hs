@@ -13,7 +13,7 @@ import RSS.Types
 -- global
 import Control.Arrow
 import Data.HashMap.Strict (HashMap)
-import qualified Data.HashMap.Strict as HM
+import qualified Data.HashMap.Strict as HashMap
 import Data.Aeson
 import Data.Text (Text)
 
@@ -21,15 +21,14 @@ import Data.Text (Text)
 newtype RSSCache = RSSCache (HashMap FeedUrl [Text]) deriving (Show)
 
 emptyCache :: RSSCache
-emptyCache = RSSCache HM.empty
+emptyCache = RSSCache HashMap.empty
 
--- Manua instances reuse internal aeson structure
-
+-- Manual instances, that reuse internal aeson structure
 instance ToJSON RSSCache where
-  toJSON (RSSCache s) = object $ (getFeedUrl *** toJSON) <$> HM.toList  s
+  toJSON (RSSCache s) = object $ (getFeedUrl *** toJSON) <$> HashMap.toList s
 
 instance FromJSON RSSCache where
   parseJSON = withObject "rss-cache" $ \s -> do
-    let w = (\(k,v) -> (,) <$> pure (FeedUrl k) <*> parseJSON v) <$> HM.toList s
+    let w = (\(k,v) -> (,) <$> pure (FeedUrl k) <*> parseJSON v) <$> HashMap.toList s
     t <- sequence w
-    return . RSSCache $ HM.fromList t
+    return . RSSCache $ HashMap.fromList t

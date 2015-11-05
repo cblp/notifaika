@@ -12,6 +12,5 @@
   "rssCache": "cacherss",
   "rss": {
       "feeds": ["http://bananasandlenses.net/feed.xml"]
-    , "prepend": false
    }
 }
