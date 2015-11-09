@@ -1,6 +1,6 @@
 module Main where
 
--- component
+-- package
 import Cache.Persist
 import Config
 import EventSource
