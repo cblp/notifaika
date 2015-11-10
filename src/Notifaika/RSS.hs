@@ -1,6 +1,6 @@
 {-
-    Discourse-to-Gitter reposts notification
-    from Discourse forums to Gitter chats.
+    Notifaika reposts notifications
+    from different feeds to Gitter chats.
     Copyright (C) 2015 Alexander Vershilov <alexander.vershilov@gmail.com>
 
     This program is free software: you can redistribute it and/or modify
