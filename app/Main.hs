@@ -30,7 +30,8 @@ main = runNotifaika Config
           ]
     , config_gitter = Gitter
           { gitter_baseUrl = "https://api.gitter.im/v1"
-          , gitter_room = ONETOONE "cblp"
+          --, gitter_room = ONETOONE "cblp"
+          , gitter_room = REPO "ruHaskell" "forall"
           , gitter_tokenFile = "../../felix/config/Gitter/HaskellCurry-token"
           }
     }
