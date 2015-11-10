@@ -20,28 +20,21 @@
 module Main where
 
 import Notifaika
-import Notifaika.Cache.Persist
 import Notifaika.Config
 import Notifaika.EventSource
 import Notifaika.Gitter
 import Notifaika.Gitter.Types
 
-import Control.Monad.Reader
-import Data.String
-
 main :: IO ()
-main = do
-    let config_cacheFile = "cache.sqlite"
-        config_sources =
-            [ Discourse "http://forum.ruhaskell.org"
-            , RSS "http://bananasandlenses.net/feed.xml"
-            ]
-        config_gitter = Gitter
-            { gitter_baseUrl = "https://api.gitter.im/v1"
-            , gitter_room = ONETOONE "cblp"
-            , gitter_tokenFile = "../../felix/config/Gitter/HaskellCurry-token"
-            }
-        config = Config{..}
-    runPersistCacheT (fromString config_cacheFile) .
-        runGitterT config_gitter $
-            runReaderT repostUpdates config
+main = runNotifaika Config
+    { config_cacheFile = "cache.sqlite"
+    , config_sources =
+          [ Discourse "http://forum.ruhaskell.org"
+          , RSS "http://bananasandlenses.net/feed.xml"
+          ]
+    , config_gitter = Gitter
+          { gitter_baseUrl = "https://api.gitter.im/v1"
+          , gitter_room = ONETOONE "cblp"
+          , gitter_tokenFile = "../../felix/config/Gitter/HaskellCurry-token"
+          }
+    }

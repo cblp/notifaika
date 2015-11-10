@@ -21,17 +21,19 @@
 
 module Notifaika where
 
-import Notifaika.Cache  as Cache
-import Notifaika.Config
-import Notifaika.EventSource
-import Notifaika.Gitter as Gitter
-import Notifaika.Gitter.Monad
-import Notifaika.Types
+import            Notifaika.Cache         as Cache
+import qualified  Notifaika.Cache.Persist as Cache
+import            Notifaika.Config
+import            Notifaika.EventSource
+import            Notifaika.Gitter        as Gitter
+import            Notifaika.Gitter.Monad
+import            Notifaika.Types
 
 import            Control.Monad.Catch
 import            Control.Monad.Reader
 import            Data.List as List
 import qualified  Data.Set  as Set
+import            Data.String
 
 -- | Takes (cache, current topics) and returns (new cache, new topics)
 detectNewEvents :: (Maybe [Eid], [Event]) -> ([Eid], [Event])
@@ -65,3 +67,9 @@ repostUpdates = do
             Gitter.withRoom room (sendChatMessage message)
         when (cachedEvents /= Just cachedEvents') $
             Cache.save source cachedEvents'
+
+runNotifaika :: Config -> IO ()
+runNotifaika config@Config{config_cacheFile, config_gitter} = do
+    Cache.runPersistCacheT (fromString config_cacheFile) .
+        runGitterT config_gitter $
+            runReaderT repostUpdates config
