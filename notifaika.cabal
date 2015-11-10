@@ -46,19 +46,19 @@ library
                         TemplateHaskell
                         TypeFamilies
     default-language:   Haskell2010
-    exposed-modules:    Cache
-                        Cache.Persist
-                        Config
-                        Data.Aeson.X
-                        Discourse
-                        EventSource
-                        Gitter
-                        Gitter.Monad
-                        Gitter.Types
-                        Lib
-                        Types
-                        RSS
-                        RSS.Types
+    exposed-modules:    Data.Aeson.X
+                        Notifaika
+                        Notifaika.Cache
+                        Notifaika.Cache.Persist
+                        Notifaika.Config
+                        Notifaika.Discourse
+                        Notifaika.EventSource
+                        Notifaika.Gitter
+                        Notifaika.Gitter.Monad
+                        Notifaika.Gitter.Types
+                        Notifaika.RSS
+                        Notifaika.RSS.Types
+                        Notifaika.Types
     ghc-options:        -Wall -Werror
     hs-source-dirs:     src
     other-modules:      Control.Monad.Trans.X

@@ -17,23 +17,31 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 -}
 
-module Cache where
+module Notifaika.Gitter.Types where
 
--- component
-import EventSource
-import Types
--- global
-import Control.Monad.Reader
-import Control.Monad.Writer
+import Data.Aeson.TH
+import Data.String.X
+import Data.Text
 
-class MonadCache m where
-    load :: EventSource -> m (Maybe [Eid])
-    save :: EventSource -> [Eid] -> m ()
+type ResourcePath = [Text]
+type UserName = Text
+type RepoName = Text
+type RoomId = Text
+type RoomUri = Text
 
-instance (Monad m, MonadCache m, Monoid w) => MonadCache (WriterT w m) where
-    load = lift . load
-    save key = lift . save key
+data Room = ONETOONE UserName | REPO UserName RepoName
+    deriving Show
 
-instance (Monad m, MonadCache m) => MonadCache (ReaderT r m) where
-    load = lift . load
-    save key = lift . save key
+deriveJSON
+    defaultOptions  { sumEncoding = TaggedObject  { tagFieldName = "type"
+                                                  , contentsFieldName = "uri"
+                                                  }
+                    }
+    ''Room
+
+data Gitter = Gitter  { gitter_baseUrl :: String
+                      , gitter_room :: Room
+                      , gitter_tokenFile :: FilePath
+                      }
+
+deriveJSON defaultOptions { fieldLabelModifier = dropPrefix "gitter_" } ''Gitter

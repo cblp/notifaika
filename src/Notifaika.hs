@@ -19,16 +19,15 @@
 
 {-# LANGUAGE ConstraintKinds, NamedFieldPuns #-}
 
-module Lib where
+module Notifaika where
 
--- component
-import Cache
-import Config
-import EventSource
-import Gitter
-import Gitter.Monad
-import Types
--- global
+import Notifaika.Cache  as Cache
+import Notifaika.Config
+import Notifaika.EventSource
+import Notifaika.Gitter as Gitter
+import Notifaika.Gitter.Monad
+import Notifaika.Types
+
 import            Control.Monad.Catch
 import            Control.Monad.Reader
 import            Data.List as List

@@ -19,14 +19,13 @@
 
 module Main where
 
--- package
-import Cache.Persist
-import Config
-import EventSource
-import Gitter
-import Gitter.Types
-import Lib
--- general
+import Notifaika
+import Notifaika.Cache.Persist
+import Notifaika.Config
+import Notifaika.EventSource
+import Notifaika.Gitter
+import Notifaika.Gitter.Types
+
 import Control.Monad.Reader
 import Data.String
 

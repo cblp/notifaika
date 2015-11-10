@@ -1,7 +1,7 @@
 {-
     Discourse-to-Gitter reposts notification
     from Discourse forums to Gitter chats.
-    Copyright (C) 2015 Yuriy Syrovetskiy
+    Copyright (C) 2015 Alexander Vershilov <alexander.vershilov@gmail.com>
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -17,29 +17,15 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 -}
 
-module EventSource where
+module Notifaika.RSS.Types
+  ( Item(..)
+  ) where
 
--- component
-import Discourse
-import RSS
-import Types
--- global
-import Control.Monad.Reader
-import Control.Monad.Writer
+import Data.Text (Text)
 
-data EventSource = Discourse Url | RSS Url
-    deriving (Eq, Ord, Show)
-
-class MonadEventSource m where
-    getEvents :: EventSource -> m [Event]
-
-instance MonadEventSource IO where
-    getEvents (Discourse baseUrl) = getDiscourseEvents baseUrl
-    getEvents (RSS feedUrl) = getRssEvents feedUrl
-
-instance (Monad m, MonadEventSource m) => MonadEventSource (ReaderT r m) where
-    getEvents = lift . getEvents
-
-instance (Monoid w, Monad m, MonadEventSource m) =>
-    MonadEventSource (WriterT w m) where
-        getEvents = lift . getEvents
+-- | RSS Item
+data Item = Item
+  { item_title   :: Text
+  , item_link    :: Text
+  , item_channel :: Text
+  } deriving (Eq,Show)

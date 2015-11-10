@@ -17,12 +17,11 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 -}
 
--- component
 import TestIO
--- package
-import EventSource
-import Lib
--- global
+
+import Notifaika
+import Notifaika.EventSource
+
 import Data.Map as Map
 import Test.Tasty
 import Test.Tasty.HUnit

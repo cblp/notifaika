@@ -17,7 +17,7 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 -}
 
-module Gitter
+module Notifaika.Gitter
     ( Gitter(..)
     , GitterT
     , runGitterT
@@ -25,12 +25,11 @@ module Gitter
     , withRoom
     ) where
 
--- component
-import Cache
-import EventSource
-import Gitter.Monad
-import Gitter.Types
--- global
+import Notifaika.Cache
+import Notifaika.EventSource
+import Notifaika.Gitter.Monad
+import Notifaika.Gitter.Types
+
 import            Control.Lens
 import            Control.Monad.Catch
 import            Control.Monad.Reader

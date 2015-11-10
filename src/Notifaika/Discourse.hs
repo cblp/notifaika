@@ -19,11 +19,10 @@
 
 {-# LANGUAGE NamedFieldPuns #-}
 
-module Discourse where
+module Notifaika.Discourse where
 
--- component
-import Types
--- global
+import Notifaika.Types
+
 import            Control.Lens
 import            Control.Monad.Catch
 import            Control.Monad.IO.Class

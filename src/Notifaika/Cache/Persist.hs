@@ -19,14 +19,13 @@
 
 {-# LANGUAGE QuasiQuotes, UndecidableInstances #-}
 
-module Cache.Persist where
+module Notifaika.Cache.Persist where
 
--- component
-import Cache
-import EventSource
-import Gitter.Monad
-import Types ( Eid )
--- global
+import Notifaika.Cache
+import Notifaika.EventSource
+import Notifaika.Gitter.Monad
+import Notifaika.Types ( Eid )
+
 import Control.Monad.Catch
 import Control.Monad.Reader
 import Control.Monad.Trans.Control

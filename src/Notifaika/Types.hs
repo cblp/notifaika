@@ -17,7 +17,7 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 -}
 
-module Types where
+module Notifaika.Types where
 
 import Data.Text
 import Database.Persist.Sql

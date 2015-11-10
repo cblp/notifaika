@@ -1,7 +1,7 @@
 {-
     Discourse-to-Gitter reposts notification
     from Discourse forums to Gitter chats.
-    Copyright (C) 2015 Alexander Vershilov <alexander.vershilov@gmail.com>
+    Copyright (C) 2015 Yuriy Syrovetskiy
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -17,15 +17,16 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 -}
 
-module RSS.Types
-  ( Item(..)
-  ) where
+module Notifaika.Gitter.Monad where
 
-import Data.Text (Text)
+import Notifaika.Gitter.Types
 
--- | RSS Item
-data Item = Item
-  { item_title   :: Text
-  , item_link    :: Text
-  , item_channel :: Text
-  } deriving (Eq,Show)
+import Control.Monad.Reader
+import Control.Monad.Trans.X
+import Data.Aeson
+
+class Monad m => MonadGitter m where
+    runGitterAction :: ResourcePath -> Value -> m Value
+
+instance MonadGitter m => MonadGitter (ReaderT r m) where
+    runGitterAction = lift2 runGitterAction

@@ -17,11 +17,10 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 -}
 
-module Config where
+module Notifaika.Config where
 
--- component
-import EventSource
-import Gitter.Types
+import Notifaika.EventSource
+import Notifaika.Gitter.Types
 
 data Config = Config  { config_cacheFile :: FilePath
                       , config_sources :: [EventSource]

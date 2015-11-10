@@ -25,15 +25,14 @@
 
 module TestIO (Effect(..), TestIO, TestIOResult(..), execTestIO) where
 
--- package
-import Cache
-import Config
-import Discourse
-import EventSource
-import Gitter.Monad
-import Gitter.Types
-import Types
--- general
+import Notifaika.Cache
+import Notifaika.Config
+import Notifaika.Discourse
+import Notifaika.EventSource
+import Notifaika.Gitter.Monad
+import Notifaika.Gitter.Types
+import Notifaika.Types
+
 import            Control.Monad.Catch
 import            Control.Monad.RWS
 import            Data.Aeson.X

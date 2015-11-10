@@ -19,15 +19,14 @@
 
 {-# LANGUAGE NamedFieldPuns #-}
 
-module RSS
+module Notifaika.RSS
   ( Item(..)
   , getRssEvents
   ) where
 
--- component
-import RSS.Types
-import Types
--- global
+import Notifaika.RSS.Types
+import Notifaika.Types
+
 import Network.Wreq
 import Text.XML.Lens
 import Text.XML
