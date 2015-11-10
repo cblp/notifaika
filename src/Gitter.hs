@@ -8,7 +8,7 @@ module Gitter
 
 -- component
 import Cache
-import Discourse
+import EventSource
 import Gitter.Monad
 import Gitter.Types
 -- global
@@ -25,7 +25,7 @@ import qualified  Data.Text as Text
 import            Network.Wreq
 
 newtype GitterT m a = GitterT (ReaderT Gitter m a)
-    deriving (Applicative, Functor, Monad, MonadDiscourse, MonadIO, MonadTrans)
+    deriving (Applicative, Functor, Monad, MonadIO, MonadThrow, MonadTrans)
 
 runGitterT :: Gitter -> GitterT m a -> m a
 runGitterT gitter (GitterT readerAction) = runReaderT readerAction gitter
@@ -71,4 +71,6 @@ instance (MonadIO io, MonadThrow io) => MonadGitter (GitterT io) where
       where
         normalizeSpace = ByteString.unwords . ByteString.words
 
-deriving instance (Monad m, MonadCache a m) => MonadCache a (GitterT m)
+deriving instance (Monad m, MonadCache m) => MonadCache (GitterT m)
+
+deriving instance (Monad m, MonadEventSource m) => MonadEventSource (GitterT m)

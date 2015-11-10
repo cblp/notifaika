@@ -1,41 +1,26 @@
 module Main where
 
--- component
-import Cache
+-- package
+import Cache.Persist
 import Config
-import Discourse
+import EventSource
 import Gitter
+import Gitter.Types
 import Lib
 -- general
 import Control.Monad.Reader
-import Data.Aeson
-import Data.ByteString.Lazy as ByteString
-import Data.Monoid
-import System.Environment
-
-usage :: String
-usage = "\nUsage:\n  discourse-to-gitter CONFIG_FILE"
+import Data.String
 
 main :: IO ()
 main = do
-    args <- getArgs
-    let configFile = case args of
-            [cnf] -> cnf
-            _ -> error usage
-    run configFile repostUpdates
-  where
-    run configFile action = do
-        config@Config{..} <- loadConfig configFile
-        let discourse = Discourse
-                { discourse_baseUrl = config_discourseBaseUrl }
-            gitter = config_gitter
-        runDiscourseT discourse .
-            runFileCacheT config_cacheFile $
-                runGitterT gitter (runReaderT action config)
-
-loadConfig :: FilePath -> IO Config
-loadConfig filePath = do
-    contents <- ByteString.readFile filePath
-    either decodeError return $ eitherDecode contents
-  where
-    decodeError err = error ("Cannot decode " <> filePath <> ": " <> err)
+    let config_cacheFile = "cache.sqlite"
+        config_sources = [Discourse "http://forum.ruhaskell.org"]
+        config_gitter = Gitter
+            { gitter_baseUrl = "https://api.gitter.im/v1"
+            , gitter_room = ONETOONE "cblp"
+            , gitter_tokenFile = "../../felix/config/Gitter/HaskellCurry-token"
+            }
+        config = Config{..}
+    runPersistCacheT (fromString config_cacheFile) .
+        runGitterT config_gitter $
+            runReaderT repostUpdates config
