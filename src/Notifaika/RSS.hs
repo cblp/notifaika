@@ -1,7 +1,8 @@
 {-
     Notifaika reposts notifications
     from different feeds to Gitter chats.
-    Copyright (C) 2015 Alexander Vershilov <alexander.vershilov@gmail.com>
+    Copyright (C) 2015  Alexander Vershilov <alexander.vershilov@gmail.com>,
+                        Yuriy Syrovetskiy <cblp@cblp.su>
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -52,17 +53,8 @@ extractItems :: Document -> [Item]
 extractItems xml =
     [ Item{item_channel, item_link, item_title}
     | elChannel <- xml ^.. root ./ el "channel"
-    , elItem <- elChannel ^.. el "channel" ./ el "item"
-    , let item_channel = elChannel ^. el "channel" ./ el "title" . text
-          item_link = elItem ^. el "item" ./ el "link" . text
-          item_title = elItem ^. el "item" ./ el "title" . text
+    , elItem <- elChannel ^.. plate . el "item"
+    , let item_channel = elChannel ^. plate . el "title" . text
+          item_link = elItem ^. plate . el "link" . text
+          item_title = elItem ^. plate . el "title" . text
     ]
-  --   concat $
-  --     (\x -> channelItem (channelTitle x) x)
-  --         <$> xml ^.. root ./ el "channel"
-  -- where
-  --   channelTitle x = x ^. el "channel" ./ el "title" . text
-  --   channelItem t x = (Item <$> itemTitle <*> itemLink <*> pure t)
-  --     <$> x ^.. el "channel" ./ el "item"
-  --   itemTitle x = x ^. el "item" ./ el "title" . text
-  --   itemLink x  = x ^. el "item" ./ el "link" . text
