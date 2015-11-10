@@ -32,6 +32,7 @@ import Discourse
 import EventSource
 import Gitter.Monad
 import Gitter.Types
+import Types
 -- general
 import            Control.Monad.Catch
 import            Control.Monad.RWS
