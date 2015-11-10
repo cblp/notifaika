@@ -33,7 +33,10 @@ import Data.String
 main :: IO ()
 main = do
     let config_cacheFile = "cache.sqlite"
-        config_sources = [Discourse "http://forum.ruhaskell.org"]
+        config_sources =
+            [ Discourse "http://forum.ruhaskell.org"
+            , RSS "http://bananasandlenses.net/feed.xml"
+            ]
         config_gitter = Gitter
             { gitter_baseUrl = "https://api.gitter.im/v1"
             , gitter_room = ONETOONE "cblp"

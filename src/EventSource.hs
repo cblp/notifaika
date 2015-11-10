@@ -21,24 +21,25 @@ module EventSource where
 
 -- component
 import Discourse
+import RSS
 import Types
 -- global
 import Control.Monad.Reader
 import Control.Monad.Writer
-import Data.Aeson.TH
 
-data EventSource = Discourse Url
+data EventSource = Discourse Url | RSS Url
     deriving (Eq, Ord, Show)
-deriveFromJSON defaultOptions ''EventSource
 
 class MonadEventSource m where
-    getTopics :: EventSource -> m [Discourse.Topic]
+    getEvents :: EventSource -> m [Event]
 
 instance MonadEventSource IO where
-    getTopics (Discourse baseUrl) = getDiscourseTopics baseUrl
+    getEvents (Discourse baseUrl) = getDiscourseEvents baseUrl
+    getEvents (RSS feedUrl) = getRssEvents feedUrl
 
 instance (Monad m, MonadEventSource m) => MonadEventSource (ReaderT r m) where
-    getTopics = lift . getTopics
+    getEvents = lift . getEvents
 
-instance (Monoid w, Monad m, MonadEventSource m) => MonadEventSource (WriterT w m) where
-    getTopics = lift . getTopics
+instance (Monoid w, Monad m, MonadEventSource m) =>
+    MonadEventSource (WriterT w m) where
+        getEvents = lift . getEvents

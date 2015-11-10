@@ -32,6 +32,8 @@ library
                       , transformers
                       , unordered-containers
                       , wreq
+                      , xml-lens
+                      , xml-conduit
     default-extensions: FlexibleContexts
                         FlexibleInstances
                         GADTs
@@ -55,6 +57,8 @@ library
                         Gitter.Types
                         Lib
                         Types
+                        RSS
+                        RSS.Types
     ghc-options:        -Wall -Werror
     hs-source-dirs:     src
     other-modules:      Control.Monad.Trans.X

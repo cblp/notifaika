@@ -87,7 +87,7 @@ instance MonadGitter TestIO where
                 _ -> error ("don't know how to mock " <> show url)
 
 instance MonadEventSource TestIO where
-    getTopics (Discourse url) = TestIO $ do
+    getEvents (Discourse url) = TestIO $ do
         tell [EventsGet]
         let dataFileName = url  & String.replace "/" "."
                                 & String.replace ":" "."
@@ -95,11 +95,11 @@ instance MonadEventSource TestIO where
             dataFilePath = "test/data/discourse" </> dataFileName </> "latest.json"
         dataFileExists <- liftIO (doesFileExist dataFilePath)
         if dataFileExists then do
-            Latest{latest_topic_list=TopicList{topicList_topics}}
-                <- liftIO (decodeFile dataFilePath)
-            return topicList_topics
+            latest <- liftIO (decodeFile dataFilePath)
+            return (extractEvents url latest)
         else
             return []
+    getEvents (RSS _) = TestIO $ return []
 
 data TestIOResult = TestIOResult
     { testIOResult_effects  :: [Effect]

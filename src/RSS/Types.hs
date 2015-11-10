@@ -1,7 +1,7 @@
 {-
     Discourse-to-Gitter reposts notification
     from Discourse forums to Gitter chats.
-    Copyright (C) 2015 Yuriy Syrovetskiy
+    Copyright (C) 2015 Alexander Vershilov <alexander.vershilov@gmail.com>
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -17,15 +17,15 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 -}
 
-module Types where
+module RSS.Types
+  ( Item(..)
+  ) where
 
-import Data.Text
-import Database.Persist.Sql
+import Data.Text (Text)
 
-type Url = String
-
--- | Event id, unique inside a feed
-newtype Eid = Eid Text
-    deriving (Eq, Ord, PersistField, PersistFieldSql, Show)
-
-data Event = Event { eventId :: Eid, message :: Text }
+-- | RSS Item
+data Item = Item
+  { item_title   :: Text
+  , item_link    :: Text
+  , item_channel :: Text
+  } deriving (Eq,Show)

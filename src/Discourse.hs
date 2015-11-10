@@ -24,15 +24,17 @@ module Discourse where
 -- component
 import Types
 -- global
-import Control.Lens
-import Control.Monad.Catch
-import Control.Monad.IO.Class
-import Data.Aeson
-import Data.Aeson.TH
-import Data.Monoid
-import Data.String.X
-import Data.Text    as Text
-import Network.Wreq as Wreq
+import            Control.Lens
+import            Control.Monad.Catch
+import            Control.Monad.IO.Class
+import            Data.Aeson
+import            Data.Aeson.TH
+import            Data.IntMap   as IntMap
+import            Data.Monoid
+import            Data.String.X
+import            Data.Text     ( Text )
+import qualified  Data.Text     as Text
+import            Network.Wreq  as Wreq
 
 data User = User { user_id :: Int, user_username :: Text }
 
@@ -52,9 +54,6 @@ data Topic = Topic  { topic_fancy_title :: Text
 
 deriveJSON defaultOptions{fieldLabelModifier = dropPrefix "topic_"} ''Topic
 
-topic_eid :: Topic -> Eid
-topic_eid = Eid . Text.pack . show . topic_id
-
 data TopicList = TopicList { topicList_topics :: [Topic] }
 
 deriveJSON  defaultOptions{fieldLabelModifier = dropPrefix "topicList_"}
@@ -68,11 +67,31 @@ resultToEither :: Result a -> Either String a
 resultToEither (Success s)  = Right s
 resultToEither (Error e)    = Left e
 
-getDiscourseTopics :: (MonadIO m, MonadThrow m) => Url -> m [Topic]
-getDiscourseTopics baseUrl = do
+getDiscourseEvents :: (MonadIO m, MonadThrow m) => Url -> m [Event]
+getDiscourseEvents baseUrl = do
     let url = baseUrl <> "/latest.json"
     response <- liftIO $ Wreq.get url
     jsonResponse <- asJSON response
-    let Latest{latest_topic_list=TopicList{topicList_topics}} =
-            jsonResponse ^. responseBody
-    return topicList_topics
+    return . extractEvents baseUrl $ jsonResponse ^. responseBody
+
+extractEvents :: Url -> Latest -> [Event]
+extractEvents baseUrl latest =
+    let Latest{latest_topic_list=TopicList{topicList_topics}, latest_users} =
+            latest
+        users = IntMap.fromList [ (user_id, user_username)
+                                | User{user_id, user_username} <- latest_users
+                                ]
+    in  [ Event{eventId, message}
+        | Topic{topic_fancy_title, topic_id, topic_posters, topic_slug}
+              <- topicList_topics
+        , let link = mconcat  [ Text.pack baseUrl
+                              , "/t/", topic_slug, "/", showText topic_id ]
+              Poster{poster_user_id} = head topic_posters
+              eventId = Eid (showText topic_id)
+              message = mconcat [ users ! poster_user_id
+                                , " опубликовал на форуме тему «"
+                                , topic_fancy_title, "»\n", link ]
+        ]
+
+showText :: Show a => a -> Text
+showText = Text.pack . show
