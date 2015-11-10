@@ -52,7 +52,7 @@ getRssEvents url = do
 extractItems :: Document -> [Item]
 extractItems xml =
     [ Item{item_channel, item_link, item_title}
-    | elChannel <- xml ^.. root ./ el "channel"
+    | elChannel <- xml ^.. root . child "channel"
     , let item_channel = elChannel ^. child "title" . text
     , elItem <- elChannel ^.. child "item"
     , let item_link = elItem ^. child "link" . text
