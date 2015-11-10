@@ -1,8 +1,8 @@
-name:                discourse-to-gitter
+name:                notifaika
 version:             0.0.0.0
 synopsis:            Send notifications from some Discourse instance to some Gitter chat
 -- description:
-homepage:            http://github.com/cblp/discourse-to-gitter#readme
+homepage:            http://github.com/cblp/notifaika#readme
 license:             GPL-3
 license-file:        LICENSE
 author:              Yuriy Syrovetskiy
@@ -64,14 +64,14 @@ library
     other-modules:      Control.Monad.Trans.X
                         Data.String.X
 
-executable discourse-to-gitter
+executable notifaika
     hs-source-dirs:     app
     main-is:            Main.hs
     ghc-options:        -Wall -Werror -threaded -rtsopts -with-rtsopts=-N
     build-depends:      aeson
                       , base
                       , bytestring
-                      , discourse-to-gitter
+                      , notifaika
                       , lens
                       , mtl
                       , text
@@ -86,7 +86,7 @@ test-suite test
                       , bytestring
                       , containers
                       , directory
-                      , discourse-to-gitter
+                      , notifaika
                       , exceptions
                       , filepath
                       , MissingH
@@ -108,4 +108,4 @@ test-suite test
 
 source-repository head
     type:     git
-    location: https://github.com/cblp/discourse-to-gitter
+    location: https://github.com/cblp/notifaika
