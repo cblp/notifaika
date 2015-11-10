@@ -20,9 +20,10 @@
 {-# LANGUAGE NamedFieldPuns #-}
 
 module Notifaika.RSS
-  ( Item(..)
-  , getRssEvents
-  ) where
+    ( Item(..)
+    , extractItems
+    , getRssEvents
+    ) where
 
 import Notifaika.RSS.Types
 import Notifaika.Types
@@ -48,12 +49,20 @@ getRssEvents url = do
 
 -- | Get feed items out of the document.
 extractItems :: Document -> [Item]
-extractItems xml = concat $
-      (\x -> channelItem (channelTitle x) x)
-          <$> xml ^.. root ./ el "channel"
-  where
-    channelTitle x = x ^. el "channel" ./ el "title" . text
-    channelItem t x = (Item <$> itemTitle <*> itemLink <*> pure t)
-      <$> x ^.. el "channel" ./ el "item"
-    itemTitle x = x ^. el "item" ./ el "title" . text
-    itemLink x  = x ^. el "item" ./ el "link" . text
+extractItems xml =
+    [ Item{item_channel, item_link, item_title}
+    | elChannel <- xml ^.. root ./ el "channel"
+    , elItem <- elChannel ^.. el "channel" ./ el "item"
+    , let item_channel = elChannel ^. el "channel" ./ el "title" . text
+          item_link = elItem ^. el "item" ./ el "link" . text
+          item_title = elItem ^. el "item" ./ el "title" . text
+    ]
+  --   concat $
+  --     (\x -> channelItem (channelTitle x) x)
+  --         <$> xml ^.. root ./ el "channel"
+  -- where
+  --   channelTitle x = x ^. el "channel" ./ el "title" . text
+  --   channelItem t x = (Item <$> itemTitle <*> itemLink <*> pure t)
+  --     <$> x ^.. el "channel" ./ el "item"
+  --   itemTitle x = x ^. el "item" ./ el "title" . text
+  --   itemLink x  = x ^. el "item" ./ el "link" . text
