@@ -53,8 +53,10 @@ extractItems :: Document -> [Item]
 extractItems xml =
     [ Item{item_channel, item_link, item_title}
     | elChannel <- xml ^.. root ./ el "channel"
-    , elItem <- elChannel ^.. plate . el "item"
-    , let item_channel = elChannel ^. plate . el "title" . text
-          item_link = elItem ^. plate . el "link" . text
-          item_title = elItem ^. plate . el "title" . text
+    , let item_channel = elChannel ^. child "title" . text
+    , elItem <- elChannel ^.. child "item"
+    , let item_link = elItem ^. child "link" . text
+          item_title = elItem ^. child "title" . text
     ]
+  where
+    child elname = plate . el elname
