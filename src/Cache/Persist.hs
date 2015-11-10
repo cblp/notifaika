@@ -6,6 +6,7 @@ module Cache.Persist where
 import Cache
 import EventSource
 import Gitter.Monad
+import Types
 -- global
 import Control.Monad.Catch
 import Control.Monad.Reader

@@ -29,6 +29,7 @@ library
                       , persistent-template
                       , text
                       , time
+                      , transformers
                       , unordered-containers
                       , wreq
     default-extensions: FlexibleContexts
@@ -53,12 +54,13 @@ library
                         Gitter.Monad
                         Gitter.Types
                         Lib
+                        Types
     ghc-options:        -Wall -Werror
     hs-source-dirs:     src
     other-modules:      Control.Monad.Trans.X
                         Data.String.X
 
-executable discourse-to-gitter-exe
+executable discourse-to-gitter
     hs-source-dirs:     app
     main-is:            Main.hs
     ghc-options:        -Wall -Werror -threaded -rtsopts -with-rtsopts=-N
@@ -74,7 +76,7 @@ executable discourse-to-gitter-exe
                         TemplateHaskell
     default-language:   Haskell2010
 
-test-suite discourse-to-gitter-test
+test-suite test
     build-depends:      aeson
                       , base
                       , bytestring

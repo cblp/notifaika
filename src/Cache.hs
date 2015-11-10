@@ -2,13 +2,14 @@ module Cache where
 
 -- component
 import EventSource
+import Types
 -- global
 import Control.Monad.Reader
 import Control.Monad.Writer
 
 class MonadCache m where
-    load  :: EventSource -> m (Maybe [Eid])
-    save  :: EventSource -> [Eid] -> m ()
+    load :: EventSource -> m (Maybe [Eid])
+    save :: EventSource -> [Eid] -> m ()
 
 instance (Monad m, MonadCache m, Monoid w) => MonadCache (WriterT w m) where
     load = lift . load

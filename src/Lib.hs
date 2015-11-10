@@ -5,9 +5,11 @@ module Lib where
 -- component
 import Cache
 import Config
+import Discourse
 import EventSource
 import Gitter
 import Gitter.Monad
+import Types
 -- global
 import            Control.Monad.Catch
 import            Control.Monad.Reader
@@ -18,7 +20,8 @@ import qualified  Data.Text as Text
 
 -- | Takes (cache, current topics) and returns (new cache, new topics)
 detectNewTopics :: (Maybe [Eid], [Topic]) -> ([Eid], [Topic])
-detectNewTopics (Nothing, current) = (fmap topic_eid current, [])
+detectNewTopics (Nothing, current) =
+    (fmap topic_eid current, [])
 detectNewTopics (Just olds, current) =
     let oldsSet = Set.fromList olds
         isNew topic = Set.notMember (topic_eid topic) oldsSet

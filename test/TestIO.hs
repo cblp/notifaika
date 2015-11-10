@@ -70,8 +70,8 @@ instance MonadEventSource TestIO where
     getTopics (Discourse url) = TestIO $ do
         tell [EventsGet]
         let dataFileName = url  & String.replace "/" "."
-                            & String.replace ":" "."
-                            & String.replace "..." "."
+                                & String.replace ":" "."
+                                & String.replace "..." "."
             dataFilePath = "test/data/discourse" </> dataFileName </> "latest.json"
         dataFileExists <- liftIO (doesFileExist dataFilePath)
         if dataFileExists then do
