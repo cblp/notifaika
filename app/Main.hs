@@ -20,10 +20,6 @@
 module Main where
 
 import Notifaika
-import Notifaika.Config
-import Notifaika.EventSource
-import Notifaika.Gitter
-import Notifaika.Gitter.Types
 
 main :: IO ()
 main = runNotifaika Config

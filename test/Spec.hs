@@ -19,7 +19,7 @@
 
 import TestIO
 
-import Notifaika
+import Notifaika.Core
 import Notifaika.EventSource
 
 import Data.Map as Map

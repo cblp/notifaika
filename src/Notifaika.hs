@@ -17,56 +17,25 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 -}
 
-{-# LANGUAGE ConstraintKinds, NamedFieldPuns #-}
+{-# LANGUAGE NamedFieldPuns #-}
 
-module Notifaika where
+module Notifaika
+    ( Config(..)
+    , EventSource(..)
+    , Gitter(..)
+    , Room(..)
+    , runNotifaika
+    ) where
 
-import            Notifaika.Cache         as Cache
 import qualified  Notifaika.Cache.Persist as Cache
 import            Notifaika.Config
+import            Notifaika.Core
 import            Notifaika.EventSource
 import            Notifaika.Gitter        as Gitter
-import            Notifaika.Gitter.Monad
-import            Notifaika.Types
+import            Notifaika.Gitter.Types
 
-import            Control.Monad.Catch
-import            Control.Monad.Reader
-import            Data.List as List
-import qualified  Data.Set  as Set
-import            Data.String
-
--- | Takes (cache, current topics) and returns (new cache, new topics)
-detectNewEvents :: (Maybe [Eid], [Event]) -> ([Eid], [Event])
-detectNewEvents (Nothing, current) =
-    (fmap eventId current, [])
-detectNewEvents (Just olds, current) =
-    let oldsSet = Set.fromList olds
-        isNew Event{eventId} = Set.notMember eventId oldsSet
-        news = filter isNew current
-    in  (olds `union` fmap eventId news, news)
-
-type MonadRepost m =  ( MonadCache m
-                      , MonadGitter m
-                      , MonadEventSource m
-                      , MonadIO m
-                      , MonadReader Config m
-                      , MonadThrow m
-                      )
-
-repostUpdates :: MonadRepost m => m ()
-repostUpdates = do
-    Config{config_gitter, config_sources} <- ask
-    let room = gitter_room config_gitter
-    forM_ config_sources $ \source -> do
-        currentEvents <- getEvents source
-        cachedEvents <- Cache.load source
-        let (cachedEvents', newEvents) =
-                detectNewEvents (cachedEvents, currentEvents)
-        forM_ newEvents $ \Event{message} ->
-            -- TODO move withRoom above forM_
-            Gitter.withRoom room (sendChatMessage message)
-        when (cachedEvents /= Just cachedEvents') $
-            Cache.save source cachedEvents'
+import Control.Monad.Reader
+import Data.String
 
 runNotifaika :: Config -> IO ()
 runNotifaika config@Config{config_cacheFile, config_gitter} = do

@@ -51,6 +51,7 @@ library
                         Notifaika.Cache
                         Notifaika.Cache.Persist
                         Notifaika.Config
+                        Notifaika.Core
                         Notifaika.Discourse
                         Notifaika.EventSource
                         Notifaika.Gitter
