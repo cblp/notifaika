@@ -19,7 +19,7 @@
 
 {-# LANGUAGE QuasiQuotes, UndecidableInstances #-}
 
-module Notifaika.Cache.Persist where
+module Notifaika.Cache.Sqlite where
 
 import Notifaika.Cache
 import Notifaika.EventSource

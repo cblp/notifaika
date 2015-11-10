@@ -27,7 +27,7 @@ module Notifaika
     , runNotifaika
     ) where
 
-import qualified  Notifaika.Cache.Persist as Cache
+import qualified  Notifaika.Cache.Sqlite  as Cache
 import            Notifaika.Config
 import            Notifaika.Core
 import            Notifaika.EventSource
