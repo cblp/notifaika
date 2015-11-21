@@ -97,6 +97,7 @@ test-suite test
                       , temporary
                       , text
                       , time
+                      , xml-conduit
     default-extensions: OverloadedLists
                         OverloadedStrings
                         RecordWildCards

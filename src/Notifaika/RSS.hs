@@ -1,7 +1,8 @@
 {-
     Notifaika reposts notifications
     from different feeds to Gitter chats.
-    Copyright (C) 2015 Alexander Vershilov <alexander.vershilov@gmail.com>
+    Copyright (C) 2015  Alexander Vershilov <alexander.vershilov@gmail.com>,
+                        Yuriy Syrovetskiy <cblp@cblp.su>
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -20,9 +21,10 @@
 {-# LANGUAGE NamedFieldPuns #-}
 
 module Notifaika.RSS
-  ( Item(..)
-  , getRssEvents
-  ) where
+    ( Item(..)
+    , extractItems
+    , getRssEvents
+    ) where
 
 import Notifaika.RSS.Types
 import Notifaika.Types
@@ -48,12 +50,13 @@ getRssEvents url = do
 
 -- | Get feed items out of the document.
 extractItems :: Document -> [Item]
-extractItems xml = concat $
-      (\x -> channelItem (channelTitle x) x)
-          <$> xml ^.. root ./ el "channel"
+extractItems xml =
+    [ Item{item_channel, item_link, item_title}
+    | elChannel <- xml ^.. root . child "channel"
+    , let item_channel = elChannel ^. child "title" . text
+    , elItem <- elChannel ^.. child "item"
+    , let item_link = elItem ^. child "link" . text
+          item_title = elItem ^. child "title" . text
+    ]
   where
-    channelTitle x = x ^. el "channel" ./ el "title" . text
-    channelItem t x = (Item <$> itemTitle <*> itemLink <*> pure t)
-      <$> x ^.. el "channel" ./ el "item"
-    itemTitle x = x ^. el "item" ./ el "title" . text
-    itemLink x  = x ^. el "item" ./ el "link" . text
+    child elname = plate . el elname
