@@ -20,7 +20,8 @@
 module Notifaika.Config where
 
 import Notifaika.EventSource
-import Notifaika.Gitter.Types
+
+import Network.Gitter.Types
 
 data Config = Config  { config_cacheFile :: FilePath
                       , config_sources :: [EventSource]

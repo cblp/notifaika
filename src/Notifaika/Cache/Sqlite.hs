@@ -23,7 +23,6 @@ module Notifaika.Cache.Sqlite where
 
 import Notifaika.Cache
 import Notifaika.EventSource
-import Notifaika.Gitter.Monad
 import Notifaika.Types ( Eid )
 
 import Control.Monad.Catch
@@ -34,6 +33,7 @@ import Data.Text  ( Text )
 import Database.Persist
 import Database.Persist.Sqlite
 import Database.Persist.TH
+import Network.Gitter.Monad
 
 share [mkPersist sqlSettings, mkMigrate "migrateAll"] [persistLowerCase|
     Source

@@ -1,5 +1,5 @@
-flags: {}
 packages:
-- '.'
+- .
+- gitter
 extra-deps: []
 resolver: lts-3.5

@@ -17,16 +17,31 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 -}
 
-module Notifaika.Gitter.Monad where
+module Network.Gitter.Types where
 
-import Notifaika.Gitter.Types
+import Data.Aeson.TH
+import Data.String.X
+import Data.Text
 
-import Control.Monad.Reader
-import Control.Monad.Trans.X
-import Data.Aeson
+type ResourcePath = [Text]
+type UserName = Text
+type RepoName = Text
+type RoomId = Text
+type RoomUri = Text
 
-class Monad m => MonadGitter m where
-    runGitterAction :: ResourcePath -> Value -> m Value
+data Room = ONETOONE UserName | REPO UserName RepoName
+    deriving Show
 
-instance MonadGitter m => MonadGitter (ReaderT r m) where
-    runGitterAction = lift2 runGitterAction
+deriveJSON
+    defaultOptions  { sumEncoding = TaggedObject  { tagFieldName = "type"
+                                                  , contentsFieldName = "uri"
+                                                  }
+                    }
+    ''Room
+
+data Gitter = Gitter  { gitter_baseUrl :: String
+                      , gitter_room :: Room
+                      , gitter_tokenFile :: FilePath
+                      }
+
+deriveJSON defaultOptions { fieldLabelModifier = dropPrefix "gitter_" } ''Gitter

@@ -24,14 +24,14 @@ module Notifaika.Core where
 import Notifaika.Cache  as Cache
 import Notifaika.Config
 import Notifaika.EventSource
-import Notifaika.Gitter as Gitter
-import Notifaika.Gitter.Monad
 import Notifaika.Types
 
 import            Control.Monad.Catch
 import            Control.Monad.Reader
 import            Data.List as List
 import qualified  Data.Set  as Set
+import            Network.Gitter as Gitter
+import            Network.Gitter.Monad
 
 -- | Takes (cache, current topics) and returns (new cache, new topics)
 detectNewEvents :: (Maybe [Eid], [Event]) -> ([Eid], [Event])

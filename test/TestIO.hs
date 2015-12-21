@@ -29,8 +29,6 @@ import Notifaika.Cache
 import Notifaika.Config
 import Notifaika.Discourse
 import Notifaika.EventSource
-import Notifaika.Gitter.Monad
-import Notifaika.Gitter.Types
 import Notifaika.Types
 
 import            Control.Monad.Catch
@@ -40,6 +38,8 @@ import            Data.Function
 import            Data.List         as List
 import            Data.Map          as Map
 import qualified  Data.String.Utils as String
+import            Network.Gitter.Monad
+import            Network.Gitter.Types
 import            System.Directory
 import            System.FilePath
 

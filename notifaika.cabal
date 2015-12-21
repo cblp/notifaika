@@ -1,7 +1,6 @@
 name:                notifaika
 version:             0.0.0.0
 synopsis:            Send notifications from some Discourse instance to some Gitter chat
--- description:
 homepage:            http://github.com/cblp/notifaika#readme
 license:             GPL-3
 license-file:        LICENSE
@@ -10,7 +9,6 @@ maintainer:          cblp@cblp.su
 copyright:           2015 Yuriy Syrovetskiy
 category:            Web
 build-type:          Simple
--- extra-source-files:
 cabal-version:       >= 1.10
 
 library
@@ -20,8 +18,8 @@ library
                       , containers
                       , errors
                       , exceptions
+                      , gitter
                       , lens
-                      , lens-aeson
                       , monad-control
                       , mtl
                       , persistent
@@ -41,7 +39,6 @@ library
                         MultiParamTypeClasses
                         OverloadedStrings
                         RankNTypes
-                        RecordWildCards
                         StandaloneDeriving
                         TemplateHaskell
                         TypeFamilies
@@ -54,16 +51,11 @@ library
                         Notifaika.Core
                         Notifaika.Discourse
                         Notifaika.EventSource
-                        Notifaika.Gitter
-                        Notifaika.Gitter.Monad
-                        Notifaika.Gitter.Types
                         Notifaika.RSS
                         Notifaika.RSS.Types
                         Notifaika.Types
     ghc-options:        -Wall -Werror
     hs-source-dirs:     src
-    other-modules:      Control.Monad.Trans.X
-                        Data.String.X
 
 executable notifaika
     hs-source-dirs:     app
@@ -87,11 +79,12 @@ test-suite test
                       , bytestring
                       , containers
                       , directory
-                      , notifaika
                       , exceptions
                       , filepath
+                      , gitter
                       , MissingH
                       , mtl
+                      , notifaika
                       , tasty
                       , tasty-hunit
                       , temporary

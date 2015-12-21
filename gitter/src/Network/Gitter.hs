@@ -17,7 +17,7 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 -}
 
-module Notifaika.Gitter
+module Network.Gitter
     ( Gitter(..)
     , GitterT
     , runGitterT
@@ -25,10 +25,8 @@ module Notifaika.Gitter
     , withRoom
     ) where
 
-import Notifaika.Cache
-import Notifaika.EventSource
-import Notifaika.Gitter.Monad
-import Notifaika.Gitter.Types
+import Network.Gitter.Monad
+import Network.Gitter.Types
 
 import            Control.Lens
 import            Control.Monad.Catch
@@ -88,7 +86,3 @@ instance (MonadIO io, MonadThrow io) => MonadGitter (GitterT io) where
         return (jsonResponse ^. responseBody)
       where
         normalizeSpace = ByteString.unwords . ByteString.words
-
-deriving instance (Monad m, MonadCache m) => MonadCache (GitterT m)
-
-deriving instance (Monad m, MonadEventSource m) => MonadEventSource (GitterT m)

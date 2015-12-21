@@ -17,32 +17,16 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 -}
 
-module Notifaika.EventSource where
+module Network.Gitter.Monad where
 
-import Notifaika.Discourse
-import Notifaika.RSS
-import Notifaika.Types
+import Network.Gitter.Types
 
 import Control.Monad.Reader
-import Control.Monad.Writer
-import Network.Gitter
+import Control.Monad.Trans.X
+import Data.Aeson
 
-data EventSource = Discourse Url | RSS Url
-    deriving (Eq, Ord, Show)
+class Monad m => MonadGitter m where
+    runGitterAction :: ResourcePath -> Value -> m Value
 
-class MonadEventSource m where
-    getEvents :: EventSource -> m [Event]
-
-instance MonadEventSource IO where
-    getEvents (Discourse baseUrl) = getDiscourseEvents baseUrl
-    getEvents (RSS feedUrl) = getRssEvents feedUrl
-
-instance (Monad m, MonadEventSource m) => MonadEventSource (ReaderT r m) where
-    getEvents = lift . getEvents
-
-instance (Monoid w, Monad m, MonadEventSource m) =>
-    MonadEventSource (WriterT w m) where
-        getEvents = lift . getEvents
-
-instance (Monad m, MonadEventSource m) => MonadEventSource (GitterT m) where
-    getEvents = lift . getEvents
+instance MonadGitter m => MonadGitter (ReaderT r m) where
+    runGitterAction = lift2 runGitterAction
