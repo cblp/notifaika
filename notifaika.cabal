@@ -21,7 +21,7 @@ library
                       , gitter
                       , lens
                       , monad-control
-                      , mtl
+--                      , mtl
                       , persistent
                       , persistent-sqlite
                       , persistent-template
@@ -32,6 +32,7 @@ library
                       , wreq
                       , xml-lens
                       , xml-conduit
+                      , extensible-effects
     default-extensions: FlexibleContexts
                         FlexibleInstances
                         GADTs
@@ -54,6 +55,7 @@ library
                         Notifaika.RSS
                         Notifaika.RSS.Types
                         Notifaika.Types
+                        Network.Gitter.Eff
     ghc-options:        -Wall -Werror
     hs-source-dirs:     src
 

@@ -23,9 +23,9 @@ module Notifaika.Discourse where
 
 import Notifaika.Types
 
+import            Control.Eff
+import            Control.Eff.Lift
 import            Control.Lens
-import            Control.Monad.Catch
-import            Control.Monad.IO.Class
 import            Data.Aeson
 import            Data.Aeson.TH
 import            Data.IntMap   as IntMap
@@ -66,11 +66,12 @@ resultToEither :: Result a -> Either String a
 resultToEither (Success s)  = Right s
 resultToEither (Error e)    = Left e
 
-getDiscourseEvents :: (MonadIO m, MonadThrow m) => Url -> m [Event]
+getDiscourseEvents :: (SetMember Lift (Lift IO) r) => Url -> Eff r [Event]
 getDiscourseEvents baseUrl = do
     let url = baseUrl <> "/latest.json"
-    response <- liftIO $ Wreq.get url
-    jsonResponse <- asJSON response
+    jsonResponse <- lift $ do
+      response <- Wreq.get url
+      asJSON response -- XXX: because 'asJSON' require MonadThrow
     return . extractEvents baseUrl $ jsonResponse ^. responseBody
 
 extractEvents :: Url -> Latest -> [Event]

@@ -32,12 +32,13 @@ import Notifaika.Types
 import Network.Wreq
 import Text.XML.Lens
 import Text.XML
-import Control.Monad.Reader
+import Control.Eff.Lift
+import Control.Eff
 
 -- | Load concrete feed
-getRssEvents :: MonadIO m => Url -> m [Event]
+getRssEvents :: SetMember Lift (Lift IO) r => Url -> Eff r [Event]
 getRssEvents url = do
-    r <- liftIO $ get url
+    r <- lift $ get url
     Right xml <- return . parseLBS def $ r ^. responseBody
     return  [ Event{eventId = Eid item_link, message}
             | Item{item_title, item_channel, item_link} <- extractItems xml
