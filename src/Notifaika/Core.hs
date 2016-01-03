@@ -26,12 +26,16 @@ import Notifaika.Config
 import Notifaika.EventSource
 import Notifaika.Types
 
-import            Control.Monad.Catch
-import            Control.Monad.Reader
 import            Data.List as List
 import qualified  Data.Set  as Set
 import            Network.Gitter as Gitter
-import            Network.Gitter.Monad
+import            Network.Gitter.Eff()
+
+import Control.Eff
+import Control.Eff.Reader.Strict
+import Control.Eff.Lift
+import Data.Foldable (forM_)
+import Control.Monad (when)
 
 -- | Takes (cache, current topics) and returns (new cache, new topics)
 detectNewEvents :: (Maybe [Eid], [Event]) -> ([Eid], [Event])
@@ -43,15 +47,11 @@ detectNewEvents (Just olds, current) =
         news = filter isNew current
     in  (olds `union` fmap eventId news, news)
 
-type MonadRepost m =  ( MonadCache m
-                      , MonadGitter m
-                      , MonadEventSource m
-                      , MonadIO m
-                      , MonadReader Config m
-                      , MonadThrow m
-                      )
-
-repostUpdates :: MonadRepost m => m ()
+repostUpdates :: ( SetMember Lift (Lift IO) r
+                 , Member (Reader Config) r
+                 , Member (Reader Gitter) r
+                 , MonadCache (Eff r)
+                 ) => Eff r ()
 repostUpdates = do
     Config{config_gitter, config_sources} <- ask
     let room = gitter_room config_gitter
@@ -61,7 +61,6 @@ repostUpdates = do
         let (cachedEvents', newEvents) =
                 detectNewEvents (cachedEvents, currentEvents)
         forM_ newEvents $ \Event{message} ->
-            -- TODO move withRoom above forM_
             Gitter.withRoom room (sendChatMessage message)
         when (cachedEvents /= Just cachedEvents') $
             Cache.save source cachedEvents'

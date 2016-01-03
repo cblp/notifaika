@@ -32,13 +32,15 @@ import            Notifaika.Config
 import            Notifaika.Core
 import            Notifaika.EventSource
 
-import Control.Monad.Reader
+import Control.Eff.Reader.Strict
+import Control.Eff.Lift
 import Data.String
 import Network.Gitter as Gitter
+import Network.Gitter.Eff
 import Network.Gitter.Types
 
 runNotifaika :: Config -> IO ()
-runNotifaika config@Config{config_cacheFile, config_gitter} =
-    Cache.runPersistCacheT (fromString config_cacheFile) .
-        runGitterT config_gitter $
-            runReaderT repostUpdates config
+runNotifaika config@Config{config_cacheFile, config_gitter} = runLift .
+    Cache.runPersistCacheEff (fromString config_cacheFile) .
+        runGitterEff config_gitter $
+            runReader repostUpdates config

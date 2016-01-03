@@ -1,7 +1,7 @@
 {-
     Notifaika reposts notifications
     from different feeds to Gitter chats.
-    Copyright (C) 2015 Yuriy Syrovetskiy
+    Copyright (C) 2016 Alexander Vershilov
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -17,19 +17,21 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 -}
 
-module Notifaika.EventSource where
+{-# LANGUAGE UndecidableInstances, TypeOperators #-}
+{-# OPTIONS_GHC -fno-warn-orphans #-}
+module Network.Gitter.Eff where
 
-import Notifaika.Discourse
-import Notifaika.RSS
-import Notifaika.Types
+import Network.Gitter
+import Network.Gitter.Monad
 
 import Control.Eff
+import Control.Eff.Reader.Strict
 import Control.Eff.Lift
 
-data EventSource = Discourse Url | RSS Url
-    deriving (Eq, Ord, Show)
+instance (SetMember Lift (Lift IO) r, Member (Reader Gitter) r) => MonadGitter (Eff r) where
+    runGitterAction path apiRequest = do
+      config <- ask
+      lift $ runGitterT config $ runGitterAction path apiRequest
 
-getEvents :: SetMember Lift (Lift IO) r => EventSource -> Eff r [Event]
-getEvents (Discourse baseUrl) = getDiscourseEvents baseUrl
-getEvents (RSS feedUrl) = getRssEvents feedUrl
-
+runGitterEff :: Gitter -> Eff (Reader Gitter :> r) a -> Eff r a
+runGitterEff gitter action = runReader action gitter
