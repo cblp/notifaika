@@ -29,16 +29,16 @@ module Notifaika.RSS
 import Notifaika.RSS.Types
 import Notifaika.Types
 
-import Network.Wreq
+import qualified Network.Wreq as Wreq
 import Text.XML.Lens
 import Text.XML
-import Control.Monad.Reader
+import Control.Monad.IO.Class
 
 -- | Load concrete feed
 getRssEvents :: MonadIO m => Url -> m [Event]
 getRssEvents url = do
-    r <- liftIO $ get url
-    Right xml <- return . parseLBS def $ r ^. responseBody
+    r <- liftIO $ Wreq.get url
+    Right xml <- return . parseLBS def $ r ^. Wreq.responseBody
     return  [ Event{eventId = Eid item_link, message}
             | Item{item_title, item_channel, item_link} <- extractItems xml
             , let message = mconcat

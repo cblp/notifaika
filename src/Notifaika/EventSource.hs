@@ -23,26 +23,12 @@ import Notifaika.Discourse
 import Notifaika.RSS
 import Notifaika.Types
 
-import Control.Monad.Reader
-import Control.Monad.Writer
-import Network.Gitter
+import Control.Monad.IO.Class
+import Control.Monad.Catch
 
 data EventSource = Discourse Url | RSS Url
     deriving (Eq, Ord, Show)
 
-class MonadEventSource m where
-    getEvents :: EventSource -> m [Event]
-
-instance MonadEventSource IO where
-    getEvents (Discourse baseUrl) = getDiscourseEvents baseUrl
-    getEvents (RSS feedUrl) = getRssEvents feedUrl
-
-instance (Monad m, MonadEventSource m) => MonadEventSource (ReaderT r m) where
-    getEvents = lift . getEvents
-
-instance (Monoid w, Monad m, MonadEventSource m) =>
-    MonadEventSource (WriterT w m) where
-        getEvents = lift . getEvents
-
-instance (Monad m, MonadEventSource m) => MonadEventSource (GitterT m) where
-    getEvents = lift . getEvents
+getEvents :: (MonadThrow m, MonadIO m) => EventSource -> m [Event]
+getEvents (Discourse baseUrl) = getDiscourseEvents baseUrl
+getEvents (RSS feedUrl) = getRssEvents feedUrl

@@ -32,13 +32,13 @@ import            Notifaika.Config
 import            Notifaika.Core
 import            Notifaika.EventSource
 
-import Control.Monad.Reader
+import Control.Monad.Classes.Run
 import Data.String
 import Network.Gitter as Gitter
 import Network.Gitter.Types
 
 runNotifaika :: Config -> IO ()
 runNotifaika config@Config{config_cacheFile, config_gitter} =
-    Cache.runPersistCacheT (fromString config_cacheFile) .
-        runGitterT config_gitter $
-            runReaderT repostUpdates config
+    runGitterT config_gitter $
+       runReader (Cache.DatabaseConnectionString $ fromString config_cacheFile) $
+         runReader config repostUpdates
