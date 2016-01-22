@@ -16,19 +16,19 @@ library
                       , base
                       , bytestring
                       , containers
-                      , errors
+                      -- , errors
                       , exceptions
                       , gitter
                       , lens
-                      , monad-control
-                      , mtl
+                      -- , monad-control
+                      , monad-classes
                       , persistent
                       , persistent-sqlite
                       , persistent-template
                       , text
-                      , time
+                      -- , time
                       , transformers
-                      , unordered-containers
+                      -- , unordered-containers
                       , wreq
                       , xml-lens
                       , xml-conduit
@@ -45,7 +45,6 @@ library
     default-language:   Haskell2010
     exposed-modules:    Data.Aeson.X
                         Notifaika
-                        Notifaika.Cache
                         Notifaika.Cache.Sqlite
                         Notifaika.Config
                         Notifaika.Core
@@ -66,7 +65,7 @@ executable notifaika
                       , bytestring
                       , notifaika
                       , lens
-                      , mtl
+                      , monad-classes
                       , text
     default-extensions: OverloadedStrings
                         RecordWildCards
@@ -83,7 +82,7 @@ test-suite test
                       , filepath
                       , gitter
                       , MissingH
-                      , mtl
+                      , monad-classes
                       , notifaika
                       , tasty
                       , tasty-hunit

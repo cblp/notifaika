@@ -21,13 +21,16 @@
 
 module Notifaika.Core where
 
-import Notifaika.Cache  as Cache
 import Notifaika.Config
 import Notifaika.EventSource
 import Notifaika.Types
+import qualified Notifaika.Cache.Sqlite as Cache
 
+import            Control.Monad ( when )
 import            Control.Monad.Catch
-import            Control.Monad.Reader
+import            Control.Monad.Classes
+import            Control.Monad.IO.Class
+import            Data.Foldable ( forM_ )
 import            Data.List as List
 import qualified  Data.Set  as Set
 import            Network.Gitter as Gitter
@@ -43,12 +46,11 @@ detectNewEvents (Just olds, current) =
         news = filter isNew current
     in  (olds `union` fmap eventId news, news)
 
-type MonadRepost m =  ( MonadCache m
-                      , MonadGitter m
-                      , MonadEventSource m
+type MonadRepost m =  ( MonadGitter m
                       , MonadIO m
                       , MonadReader Config m
                       , MonadThrow m
+                      , MonadReader Cache.DatabaseConnectionString m
                       )
 
 repostUpdates :: MonadRepost m => m ()
