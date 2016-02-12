@@ -27,6 +27,7 @@ main = runNotifaika Config
     , config_sources =
           [ Discourse "http://forum.ruhaskell.org"
           , RSS "http://bananasandlenses.net/feed.xml"
+          , RSS "https://www.reddit.com/r/ruhaskell/.rss"
           ]
     , config_gitter = Gitter
           { gitter_baseUrl = "https://api.gitter.im/v1"
