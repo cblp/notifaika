@@ -1,5 +1,5 @@
 packages:
-- .
-- gitter
-extra-deps: []
+  - .
+extra-deps:
+  - gitter-0.0.0.1
 resolver: lts-3.5
