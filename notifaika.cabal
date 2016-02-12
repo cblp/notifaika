@@ -56,6 +56,7 @@ library
                         Notifaika.Types
     ghc-options:        -Wall -Werror
     hs-source-dirs:     src
+    other-modules:      Data.String.X
 
 executable notifaika
     hs-source-dirs:     app
