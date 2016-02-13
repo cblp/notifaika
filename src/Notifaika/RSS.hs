@@ -3,6 +3,7 @@
     from different feeds to Gitter chats.
     Copyright (C) 2015  Alexander Vershilov <alexander.vershilov@gmail.com>,
                         Yuriy Syrovetskiy <cblp@cblp.su>
+                  2016  Yuriy Syrovetskiy <cblp@cblp.su>
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
