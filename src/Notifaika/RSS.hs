@@ -29,8 +29,9 @@ module Notifaika.RSS
 import Notifaika.RSS.Types
 import Notifaika.Types
 
+import Data.Monoid
 import Network.Wreq
-import Text.XML.Lens
+import Text.XML.Lens ( (^.), (^..), attr, el, plate, root, text )
 import Text.XML
 import Control.Monad.Reader
 
@@ -50,13 +51,21 @@ getRssEvents url = do
 
 -- | Get feed items out of the document.
 extractItems :: Document -> [Item]
-extractItems xml =
-    [ Item{item_channel, item_link, item_title}
-    | elChannel <- xml ^.. root . child "channel"
-    , let item_channel = elChannel ^. child "title" . text
-    , elItem <- elChannel ^.. child "item"
-    , let item_link = elItem ^. child "link" . text
-          item_title = elItem ^. child "title" . text
-    ]
+extractItems doc = do
+    elChannel <- doc ^.. root . channel
+    let item_channel = elChannel ^. title . text
+    elItem <- elChannel ^.. item
+    pure Item { item_channel
+              , item_link = elItem ^. link
+              , item_title = elItem ^. title . text
+              }
   where
+    channel = child "channel" <> el (atom "feed")
+    title = child "title" <> child (atom "title")
+    item = child "item" <> child (atom "entry")
+    link = child "link" . text <> child (atom "link") . attr "href"
+    atom name = Name  { nameLocalName = name
+                      , nameNamespace = Just "http://www.w3.org/2005/Atom"
+                      , namePrefix = Nothing
+                      }
     child elname = plate . el elname
