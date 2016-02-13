@@ -34,14 +34,12 @@ library
                       , xml-conduit
     default-extensions: FlexibleContexts
                         FlexibleInstances
-                        GADTs
                         GeneralizedNewtypeDeriving
                         MultiParamTypeClasses
                         OverloadedStrings
                         RankNTypes
                         StandaloneDeriving
                         TemplateHaskell
-                        TypeFamilies
     default-language:   Haskell2010
     exposed-modules:    Data.Aeson.X
                         Notifaika
