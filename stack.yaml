@@ -1,7 +1,3 @@
-packages:
-  - .
-  - location: ../haskell-gitter
-    extra-dep: true
-# extra-deps:
-#   - gitter-0.1
+extra-deps:
+  - gitter-0.1
 resolver: lts-7.14
