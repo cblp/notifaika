@@ -1,7 +1,7 @@
 {-
     Notifaika reposts notifications
     from different feeds to Gitter chats.
-    Copyright (C) 2015 Yuriy Syrovetskiy
+    Copyright (C) 2015-2016 Yuriy Syrovetskiy
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -18,22 +18,26 @@
 -}
 
 {-# LANGUAGE NamedFieldPuns #-}
+{-# LANGUAGE OverloadedStrings #-}
+{-# LANGUAGE TemplateHaskell #-}
 
 module Notifaika.Discourse where
 
-import Notifaika.Types
+import           Control.Lens ((^.))
+import           Control.Monad.Catch (MonadThrow)
+import           Control.Monad.IO.Class (MonadIO, liftIO)
+import           Data.Aeson (Result(Error, Success))
+import           Data.Aeson.TH (defaultOptions, deriveJSON, fieldLabelModifier)
+import           Data.IntMap ((!))
+import qualified Data.IntMap as IntMap
+import           Data.Monoid ((<>))
+import           Data.String.X (dropPrefix)
+import           Data.Text (Text)
+import qualified Data.Text as Text
+import           Network.Wreq (asJSON, responseBody)
+import qualified Network.Wreq as Wreq
 
-import            Control.Lens
-import            Control.Monad.Catch
-import            Control.Monad.IO.Class
-import            Data.Aeson
-import            Data.Aeson.TH
-import            Data.IntMap   as IntMap
-import            Data.Monoid
-import            Data.String.X
-import            Data.Text     ( Text )
-import qualified  Data.Text     as Text
-import            Network.Wreq  as Wreq
+import Notifaika.Types (Eid(Eid), Event(Event), Url, eventId, message)
 
 data User = User { user_id :: Int, user_username :: Text }
 

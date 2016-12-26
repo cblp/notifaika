@@ -1,7 +1,7 @@
 {-
     Notifaika reposts notifications
     from different feeds to Gitter chats.
-    Copyright (C) 2015 Yuriy Syrovetskiy
+    Copyright (C) 2015-2016 Yuriy Syrovetskiy
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -17,31 +17,36 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 -}
 
-{-# LANGUAGE ConstraintKinds, NamedFieldPuns #-}
+{-# LANGUAGE ConstraintKinds #-}
+{-# LANGUAGE FlexibleContexts #-}
+{-# LANGUAGE NamedFieldPuns #-}
 
 module Notifaika.Core where
 
-import Notifaika.Cache  as Cache
-import Notifaika.Config
-import Notifaika.EventSource
-import Notifaika.Types
+import           Control.Monad (when)
+import           Control.Monad.Catch (MonadThrow)
+import           Control.Monad.IO.Class (MonadIO)
+import           Control.Monad.Reader (MonadReader, ask)
+import           Data.Foldable (for_)
+import qualified Data.List as List
+import qualified Data.Set as Set
+import           Network.Gitter (gitter_room, sendChatMessage, withRoom)
+import           Network.Gitter.Monad (MonadGitter)
 
-import            Control.Monad.Catch
-import            Control.Monad.Reader
-import            Data.List as List
-import qualified  Data.Set  as Set
-import            Network.Gitter as Gitter
-import            Network.Gitter.Monad
+import           Notifaika.Cache (MonadCache)
+import qualified Notifaika.Cache as Cache
+import           Notifaika.Config (Config(..))
+import           Notifaika.EventSource (MonadEventSource, getEvents)
+import           Notifaika.Types (Eid, Event(Event), eventId, message)
 
 -- | Takes (cache, current topics) and returns (new cache, new topics)
 detectNewEvents :: (Maybe [Eid], [Event]) -> ([Eid], [Event])
-detectNewEvents (Nothing, current) =
-    (fmap eventId current, [])
+detectNewEvents (Nothing, current) = (fmap eventId current, [])
 detectNewEvents (Just olds, current) =
     let oldsSet = Set.fromList olds
         isNew Event{eventId} = Set.notMember eventId oldsSet
         news = filter isNew current
-    in  (olds `union` fmap eventId news, news)
+    in  (olds `List.union` fmap eventId news, news)
 
 type MonadRepost m =  ( MonadCache m
                       , MonadGitter m
@@ -55,13 +60,13 @@ repostUpdates :: MonadRepost m => m ()
 repostUpdates = do
     Config{config_gitter, config_sources} <- ask
     let room = gitter_room config_gitter
-    forM_ config_sources $ \source -> do
+    for_ config_sources $ \source -> do
         currentEvents <- getEvents source
         cachedEvents <- Cache.load source
         let (cachedEvents', newEvents) =
                 detectNewEvents (cachedEvents, currentEvents)
-        forM_ newEvents $ \Event{message} ->
+        for_ newEvents $ \Event{message} ->
             -- TODO move withRoom above forM_
-            Gitter.withRoom room (sendChatMessage message)
+            withRoom room (sendChatMessage message)
         when (cachedEvents /= Just cachedEvents') $
             Cache.save source cachedEvents'

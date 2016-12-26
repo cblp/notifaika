@@ -20,6 +20,7 @@
 -}
 
 {-# LANGUAGE NamedFieldPuns #-}
+{-# LANGUAGE OverloadedStrings #-}
 
 module Notifaika.RSS
     ( Item(..)
@@ -27,28 +28,30 @@ module Notifaika.RSS
     , getRssEvents
     ) where
 
-import Notifaika.RSS.Types
-import Notifaika.Types
+import           Control.Monad.Reader ()
+import           Control.Monad.IO.Class (MonadIO, liftIO)
+import           Data.Monoid ((<>))
+import           Network.Wreq (get, responseBody)
+import           Text.XML (Document, Name(..))
+import qualified Text.XML as XML
+import           Text.XML.Lens ((^.), (^..), attr, el, plate, root, text)
 
-import Data.Monoid
-import Network.Wreq
-import Text.XML.Lens ( (^.), (^..), attr, el, plate, root, text )
-import Text.XML
-import Control.Monad.Reader
+import Notifaika.RSS.Types (Item(..))
+import Notifaika.Types (Eid(Eid), Event(Event), Url, eventId, message)
 
 -- | Load concrete feed
 getRssEvents :: MonadIO m => Url -> m [Event]
 getRssEvents url = do
     r <- liftIO $ get url
-    Right xml <- return . parseLBS def $ r ^. responseBody
-    return  [ Event{eventId = Eid item_link, message}
-            | Item{item_title, item_channel, item_link} <- extractItems xml
-            , let message = mconcat
-                      [ "Новый пост «", item_title
-                      , "» в ленте «", item_channel, "»\n"
-                      , item_link
-                      ]
-            ]
+    Right xml <- pure . XML.parseLBS XML.def $ r ^. responseBody
+    pure  [ Event{eventId = Eid item_link, message}
+          | Item{item_title, item_channel, item_link} <- extractItems xml
+          , let message = mconcat
+                    [ "Новый пост «", item_title
+                    , "» в ленте «", item_channel, "»\n"
+                    , item_link
+                    ]
+          ]
 
 -- | Get feed items out of the document.
 extractItems :: Document -> [Item]

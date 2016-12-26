@@ -1,7 +1,7 @@
 {-
     Notifaika reposts notifications
     from different feeds to Gitter chats.
-    Copyright (C) 2015 Yuriy Syrovetskiy
+    Copyright (C) 2015-2016 Yuriy Syrovetskiy
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -17,73 +17,86 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 -}
 
+{-# LANGUAGE FlexibleInstances #-}
 {-# LANGUAGE GADTs #-}
+{-# LANGUAGE GeneralizedNewtypeDeriving #-}
+{-# LANGUAGE MultiParamTypeClasses #-}
 {-# LANGUAGE QuasiQuotes #-}
+{-# LANGUAGE StandaloneDeriving #-}
+{-# LANGUAGE TemplateHaskell #-}
 {-# LANGUAGE TypeFamilies #-}
 {-# LANGUAGE UndecidableInstances #-}
 
 module Notifaika.Cache.Sqlite where
 
-import Notifaika.Cache
-import Notifaika.EventSource
-import Notifaika.Types ( Eid )
+import           Control.Monad.Catch (MonadThrow)
+import           Control.Monad.IO.Class (MonadIO)
+import           Control.Monad.Reader (MonadReader, ReaderT, ask, local, reader,
+                                       runReaderT)
+import           Control.Monad.Trans (MonadTrans, lift)
+import           Control.Monad.Trans.Control
+import           Control.Monad.Trans.Maybe (MaybeT(MaybeT), runMaybeT)
+import qualified Data.Set as Set
+import           Data.Text (Text)
+import           Database.Persist (Entity(Entity), entityKey, entityVal,
+                                   insertMany_, selectFirst, selectList, upsert,
+                                   (==.))
+import           Database.Persist.Sqlite (runMigration, runSqlite)
+import           Database.Persist.TH (mkMigrate, mkPersist, persistLowerCase,
+                                      share, sqlSettings)
+import           Network.Gitter.Monad (MonadGitter)
 
-import Control.Monad.Catch
-import Control.Monad.Reader
-import Control.Monad.Trans.Control
-import Data.Set   as Set
-import Data.Text  ( Text )
-import Database.Persist
-import Database.Persist.Sqlite
-import Database.Persist.TH
-import Network.Gitter.Monad
+import           Notifaika.Cache (MonadCache, load, save)
+import           Notifaika.EventSource (MonadEventSource)
+import           Notifaika.Types (Eid)
 
-share [mkPersist sqlSettings, mkMigrate "migrateAll"] [persistLowerCase|
-    Source
-        repr    String
+share
+    [mkPersist sqlSettings, mkMigrate "migrateAll"]
+    [persistLowerCase|
+        Source
+            repr    String
 
-        UniqueSource repr
+            UniqueSource repr
 
-    Event
-        source  SourceId
-        eid     Eid
+        Event
+            source  SourceId
+            eid     Eid
 
-        UniqueItem source eid
-|]
+            UniqueItem source eid
+    |]
 
 type DatabaseConnectionString = Text
 
 newtype PersistCacheT m a = PersistCacheT (ReaderT DatabaseConnectionString m a)
     deriving (Applicative, Functor, Monad, MonadThrow, MonadTrans)
 
-runPersistCacheT  :: (MonadBaseControl IO m, MonadIO m)
-                  => DatabaseConnectionString -> PersistCacheT m a -> m a
-runPersistCacheT database (PersistCacheT readerAction) = do
-    runSqlite database $
-        runMigration migrateAll
+runPersistCacheT :: DatabaseConnectionString -> PersistCacheT m a -> m a
+runPersistCacheT database (PersistCacheT readerAction) =
     runReaderT readerAction database
 
-instance (MonadBaseControl IO io, MonadIO io) => MonadCache (PersistCacheT io) where
+instance
+    (MonadBaseControl IO io, MonadIO io) =>
+    MonadCache (PersistCacheT io) where
+
     load source = PersistCacheT $ do
         database <- ask
         runSqlite database $ do
-            mSourceEntity <- selectFirst [SourceRepr ==. show source] []
-            -- TODO MaybeT
-            case mSourceEntity of
-                Nothing -> return Nothing
-                Just Entity{entityKey=sourceId} -> do
-                    events <- selectList [EventSource ==. sourceId] []
-                    return $ Just [eventEid event | Entity{entityVal=event} <- events]
+            runMigration migrateAll
+            runMaybeT $ do
+                Entity{entityKey=sourceId} <-
+                    MaybeT $ selectFirst [SourceRepr ==. show source] []
+                lift $
+                    map (eventEid . entityVal) <$>
+                        selectList [EventSource ==. sourceId] []
+
     save source eids = PersistCacheT $ do
         database <- ask
         runSqlite database $ do
+            runMigration migrateAll
             Entity{entityKey=sourceId} <-
                 upsert Source{sourceRepr = show source} []
             oldEntities <- selectList [EventSource ==. sourceId] []
-            let oldEids =
-                    Set.fromList  [ eventEid event
-                                  | Entity{entityVal=event} <- oldEntities
-                                  ]
+            let oldEids = Set.fromList $ eventEid . entityVal <$> oldEntities
             insertMany_ [ Event{eventSource=sourceId, eventEid=eid}
                         | eid <- eids
                         , eid `Set.notMember` oldEids
@@ -101,5 +114,6 @@ deriving instance MonadGitter m => MonadGitter (PersistCacheT m)
 
 deriving instance MonadIO m => MonadIO (PersistCacheT m)
 
-deriving instance (Monad m, MonadEventSource m) =>
+deriving instance
+    (Monad m, MonadEventSource m) =>
     MonadEventSource (PersistCacheT m)

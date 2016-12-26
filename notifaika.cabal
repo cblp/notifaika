@@ -32,14 +32,6 @@ library
                       , wreq
                       , xml-lens
                       , xml-conduit
-    default-extensions: FlexibleContexts
-                        FlexibleInstances
-                        GeneralizedNewtypeDeriving
-                        MultiParamTypeClasses
-                        OverloadedStrings
-                        RankNTypes
-                        StandaloneDeriving
-                        TemplateHaskell
     default-language:   Haskell2010
     exposed-modules:    Data.Aeson.X
                         Notifaika
