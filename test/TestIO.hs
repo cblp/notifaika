@@ -17,31 +17,37 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 -}
 
-{-# LANGUAGE  FlexibleInstances
-            , GeneralizedNewtypeDeriving
-            , MultiParamTypeClasses
-            , NamedFieldPuns
-  #-}
+{-# LANGUAGE FlexibleInstances #-}
+{-# LANGUAGE GeneralizedNewtypeDeriving #-}
+{-# LANGUAGE MultiParamTypeClasses #-}
+{-# LANGUAGE NamedFieldPuns #-}
+{-# LANGUAGE RecordWildCards #-}
 
-module TestIO (Effect(..), TestIO, TestIOResult(..), execTestIO) where
+module TestIO (Effect (..), TestIO, TestIOResult (..), execTestIO) where
 
-import Notifaika.Cache
-import Notifaika.Config
-import Notifaika.Discourse
-import Notifaika.EventSource
-import Notifaika.Types
+import           Control.Monad (join)
+import           Control.Monad.Catch (MonadThrow)
+import           Control.Monad.IO.Class (MonadIO, liftIO)
+import           Control.Monad.RWS.Strict (MonadReader, RWST, execRWST, gets,
+                                           modify', tell)
+import           Data.Aeson.X (Value (Object), decodeFile)
+import           Data.Function ((&))
+import           Data.List (union)
+import           Data.Map (Map)
+import qualified Data.Map as Map
+import           Data.Semigroup ((<>))
+import           Data.String.Utils (replace)
+import           Gitter.Monad (MonadGitter, runGitterAction)
+import           Gitter.Types (Gitter (..), ResourcePath, Room (ONETOONE))
+import           System.Directory (doesFileExist)
+import           System.FilePath ((</>))
 
-import            Control.Monad.Catch
-import            Control.Monad.RWS
-import            Data.Aeson.X
-import            Data.Function
-import            Data.List         as List
-import            Data.Map          as Map
-import qualified  Data.String.Utils as String
-import            Network.Gitter.Monad
-import            Network.Gitter.Types
-import            System.Directory
-import            System.FilePath
+import Notifaika.Cache (MonadCache, load, save)
+import Notifaika.Config (Config (..))
+import Notifaika.Discourse (extractEvents)
+import Notifaika.EventSource (EventSource (Discourse, RSS), MonadEventSource,
+                              getEvents)
+import Notifaika.Types (Eid)
 
 data Effect = CacheRead
             | CacheWrite
@@ -52,24 +58,26 @@ data Effect = CacheRead
 type TestCache = Map EventSource (Maybe [Eid])
 
 newtype TestIO a = TestIO (RWST Config [Effect] TestCache IO a)
-    deriving (Applicative, Functor, Monad, MonadIO, MonadReader Config, MonadThrow)
+    deriving
+        (Applicative, Functor, Monad, MonadIO, MonadReader Config, MonadThrow)
 
 instance MonadCache TestIO where
     load source = TestIO $ do
         tell [CacheRead]
-        gets (join . Map.lookup source)
+        gets $ join . Map.lookup source
+
     save source eids = TestIO $ do
         tell [CacheWrite]
-        modify (Map.insertWith munion source (Just eids))
+        modify' $ Map.insertWith munion source $ Just eids
       where
         munion Nothing    mys       = mys
         munion mxs        Nothing   = mxs
-        munion (Just xs)  (Just ys) = Just (xs `List.union` ys)
+        munion (Just xs)  (Just ys) = Just (xs `union` ys)
 
 instance MonadGitter TestIO where
     runGitterAction path body = TestIO $ do
         tell [GitterAction path]
-        return (mockGitter path body)
+        pure (mockGitter path body)
       where
         mockGitter :: ResourcePath -> Value -> Value
         mockGitter url req =
@@ -88,21 +96,21 @@ instance MonadGitter TestIO where
 instance MonadEventSource TestIO where
     getEvents (Discourse url) = TestIO $ do
         tell [EventsGet]
-        let dataFileName = url  & String.replace "/" "."
-                                & String.replace ":" "."
-                                & String.replace "..." "."
-            dataFilePath = "test/data/discourse" </> dataFileName </> "latest.json"
-        dataFileExists <- liftIO (doesFileExist dataFilePath)
+        let dataFileName =
+                url & replace "/" "." & replace ":" "." & replace "..." "."
+        let dataFilePath =
+                "test/data/discourse" </> dataFileName </> "latest.json"
+        dataFileExists <- liftIO $ doesFileExist dataFilePath
         if dataFileExists then do
-            latest <- liftIO (decodeFile dataFilePath)
-            return (extractEvents url latest)
+            latest <- liftIO $ decodeFile dataFilePath
+            pure $ extractEvents url latest
         else
-            return []
-    getEvents (RSS _) = TestIO $ return []
+            pure []
+    getEvents (RSS _) = TestIO $ pure []
 
 data TestIOResult = TestIOResult
-    { testIOResult_effects  :: [Effect]
-    , testIOResult_cache    :: TestCache
+    { testIOResult_effects :: [Effect]
+    , testIOResult_cache :: TestCache
     }
 
 execTestIO :: TestCache -> TestIO () -> IO TestIOResult
@@ -110,16 +118,16 @@ execTestIO initCache testAction = do
     let cacheFile = "test.sqlite"
         sources = Map.keys initCache
         config = Config
-            { config_cacheFile = cacheFile
-            , config_sources = sources
-            , config_gitter = Gitter
-                  { gitter_baseUrl = "test://api.gitter.example.com/v1"
-                  , gitter_room = ONETOONE "cblp"
-                  , gitter_tokenFile = "/dev/null"
+            { configCacheFile = cacheFile
+            , configSources = sources
+            , configGitter = Gitter
+                  { gitterBaseUrl = "test://api.gitter.example.com/v1"
+                  , gitterRoom = ONETOONE "cblp"
+                  , gitterTokenFile = "/dev/null"
                   }
             }
 
     let TestIO rwsAction = testAction
         ioAction = execRWST rwsAction config initCache
     (testIOResult_cache, testIOResult_effects) <- ioAction
-    return TestIOResult{..}
+    pure TestIOResult{..}

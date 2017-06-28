@@ -21,7 +21,7 @@
 {-# LANGUAGE FlexibleContexts #-}
 {-# LANGUAGE NamedFieldPuns #-}
 
-module Notifaika.Core where
+module Notifaika.Core (repostUpdates) where
 
 import           Control.Monad (when)
 import           Control.Monad.Catch (MonadThrow)
@@ -30,14 +30,14 @@ import           Control.Monad.Reader (MonadReader, ask)
 import           Data.Foldable (for_)
 import qualified Data.List as List
 import qualified Data.Set as Set
-import           Network.Gitter (gitter_room, sendChatMessage, withRoom)
-import           Network.Gitter.Monad (MonadGitter)
+import           Gitter (gitterRoom, sendChatMessage, withRoom)
+import           Gitter.Monad (MonadGitter)
 
 import           Notifaika.Cache (MonadCache)
 import qualified Notifaika.Cache as Cache
-import           Notifaika.Config (Config(..))
+import           Notifaika.Config (Config (..))
 import           Notifaika.EventSource (MonadEventSource, getEvents)
-import           Notifaika.Types (Eid, Event(Event), eventId, message)
+import           Notifaika.Types (Eid, Event (Event), eventId, message)
 
 -- | Takes (cache, current topics) and returns (new cache, new topics)
 detectNewEvents :: (Maybe [Eid], [Event]) -> ([Eid], [Event])
@@ -58,9 +58,9 @@ type MonadRepost m =  ( MonadCache m
 
 repostUpdates :: MonadRepost m => m ()
 repostUpdates = do
-    Config{config_gitter, config_sources} <- ask
-    let room = gitter_room config_gitter
-    for_ config_sources $ \source -> do
+    Config{configGitter, configSources} <- ask
+    let room = gitterRoom configGitter
+    for_ configSources $ \source -> do
         currentEvents <- getEvents source
         cachedEvents <- Cache.load source
         let (cachedEvents', newEvents) =

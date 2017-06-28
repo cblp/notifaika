@@ -20,25 +20,25 @@
 {-# LANGUAGE NamedFieldPuns #-}
 
 module Notifaika
-    ( Config(..)
-    , EventSource(..)
-    , Gitter(..)
-    , Room(..)
+    ( Config (..)
+    , EventSource (..)
+    , Gitter (..)
+    , Room (..)
     , runNotifaika
     ) where
 
-import qualified  Notifaika.Cache.Sqlite  as Cache
-import            Notifaika.Config
-import            Notifaika.Core
-import            Notifaika.EventSource
+import Control.Monad.Reader (runReaderT)
+import Data.String (fromString)
+import Gitter (Gitter (..), runGitterT)
+import Gitter.Types (Room (..))
 
-import Control.Monad.Reader
-import Data.String
-import Network.Gitter as Gitter
-import Network.Gitter.Types
+import qualified Notifaika.Cache.Sqlite as Cache
+import           Notifaika.Config (Config (..))
+import           Notifaika.Core (repostUpdates)
+import           Notifaika.EventSource (EventSource (..))
 
 runNotifaika :: Config -> IO ()
-runNotifaika config@Config{config_cacheFile, config_gitter} =
-    Cache.runPersistCacheT (fromString config_cacheFile) .
-        runGitterT config_gitter $
+runNotifaika config@Config{configCacheFile, configGitter} =
+    Cache.runPersistCacheT (fromString configCacheFile) .
+        runGitterT configGitter $
             runReaderT repostUpdates config

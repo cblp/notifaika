@@ -17,13 +17,14 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 -}
 
-module Notifaika.Config where
+module Notifaika.Config (Config (..)) where
 
-import Notifaika.EventSource
+import Gitter.Types (Gitter)
 
-import Network.Gitter.Types
+import Notifaika.EventSource (EventSource)
 
-data Config = Config  { config_cacheFile :: FilePath
-                      , config_sources :: [EventSource]
-                      , config_gitter :: Gitter
-                      }
+data Config = Config
+    { configCacheFile :: FilePath
+    , configSources :: [EventSource]
+    , configGitter :: Gitter
+    }

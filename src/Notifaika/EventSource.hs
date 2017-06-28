@@ -17,15 +17,15 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 -}
 
-module Notifaika.EventSource where
+module Notifaika.EventSource (EventSource (..), MonadEventSource (..)) where
 
-import Notifaika.Discourse
-import Notifaika.RSS
-import Notifaika.Types
+import Control.Monad.Reader (ReaderT, lift)
+import Control.Monad.Writer.Strict (WriterT)
+import Gitter (GitterT)
 
-import Control.Monad.Reader
-import Control.Monad.Writer
-import Network.Gitter
+import Notifaika.Discourse (getDiscourseEvents)
+import Notifaika.RSS (getRssEvents)
+import Notifaika.Types (Event, Url)
 
 data EventSource = Discourse Url | RSS Url
     deriving (Eq, Ord, Show)
@@ -35,7 +35,7 @@ class MonadEventSource m where
 
 instance MonadEventSource IO where
     getEvents (Discourse baseUrl) = getDiscourseEvents baseUrl
-    getEvents (RSS feedUrl) = getRssEvents feedUrl
+    getEvents (RSS feedUrl)       = getRssEvents feedUrl
 
 instance (Monad m, MonadEventSource m) => MonadEventSource (ReaderT r m) where
     getEvents = lift . getEvents

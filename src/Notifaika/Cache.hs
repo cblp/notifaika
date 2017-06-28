@@ -17,14 +17,14 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 -}
 
-module Notifaika.Cache where
+module Notifaika.Cache (MonadCache (..)) where
 
-import Notifaika.EventSource
-import Notifaika.Types
+import Control.Monad.Reader (ReaderT, lift)
+import Control.Monad.Writer.Strict (WriterT)
+import Gitter (GitterT)
 
-import Control.Monad.Reader
-import Control.Monad.Writer
-import Network.Gitter
+import Notifaika.EventSource (EventSource)
+import Notifaika.Types (Eid)
 
 class MonadCache m where
     load :: EventSource -> m (Maybe [Eid])

@@ -27,7 +27,7 @@
 {-# LANGUAGE TypeFamilies #-}
 {-# LANGUAGE UndecidableInstances #-}
 
-module Notifaika.Cache.Sqlite where
+module Notifaika.Cache.Sqlite (runPersistCacheT, EventId, SourceId) where
 
 import           Control.Monad.Catch (MonadThrow)
 import           Control.Monad.IO.Class (MonadIO)
@@ -44,7 +44,7 @@ import           Database.Persist (Entity(Entity), entityKey, entityVal,
 import           Database.Persist.Sqlite (runMigration, runSqlite)
 import           Database.Persist.TH (mkMigrate, mkPersist, persistLowerCase,
                                       share, sqlSettings)
-import           Network.Gitter.Monad (MonadGitter)
+import           Gitter.Monad (MonadGitter)
 
 import           Notifaika.Cache (MonadCache, load, save)
 import           Notifaika.EventSource (MonadEventSource)

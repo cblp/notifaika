@@ -23,16 +23,15 @@ import Notifaika
 
 main :: IO ()
 main = runNotifaika Config
-    { config_cacheFile = "cache.sqlite"
-    , config_sources =
-          [ Discourse "http://forum.ruhaskell.org"
-          , RSS "http://bananasandlenses.net/feed.xml"
+    { configCacheFile = "cache.sqlite"
+    , configSources =
+          [ RSS "http://bananasandlenses.net/feed.xml"
           , RSS "https://www.reddit.com/r/ruhaskell/.rss"
           ]
-    , config_gitter = Gitter
-          { gitter_baseUrl = "https://api.gitter.im/v1"
-          --, gitter_room = ONETOONE "cblp"
-          , gitter_room = REPO "ruHaskell" "forall"
-          , gitter_tokenFile = "../../felix/config/Gitter/HaskellCurry-token"
+    , configGitter = Gitter
+          { gitterBaseUrl = "https://api.gitter.im/v1"
+          --, gitterRoom = ONETOONE "cblp"
+          , gitterRoom = REPO "ruHaskell" "forall"
+          , gitterTokenFile = "../../felix/config/Gitter/HaskellCurry-token"
           }
     }
