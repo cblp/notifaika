@@ -31,10 +31,10 @@ module Notifaika.Cache.Sqlite (runPersistCacheT, EventId, SourceId) where
 
 import           Control.Monad.Catch (MonadThrow)
 import           Control.Monad.IO.Class (MonadIO)
+import           Control.Monad.IO.Unlift (MonadUnliftIO)
 import           Control.Monad.Reader (MonadReader, ReaderT, ask, local, reader,
                                        runReaderT)
 import           Control.Monad.Trans (MonadTrans, lift)
-import           Control.Monad.Trans.Control
 import           Control.Monad.Trans.Maybe (MaybeT(MaybeT), runMaybeT)
 import qualified Data.Set as Set
 import           Data.Text (Text)
@@ -75,7 +75,7 @@ runPersistCacheT database (PersistCacheT readerAction) =
     runReaderT readerAction database
 
 instance
-    (MonadBaseControl IO io, MonadIO io) =>
+    (MonadIO io, MonadUnliftIO io) =>
     MonadCache (PersistCacheT io) where
 
     load source = PersistCacheT $ do

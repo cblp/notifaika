@@ -20,7 +20,6 @@ library
                       , exceptions
                       , gitter
                       , lens
-                      , monad-control
                       , mtl
                       , persistent
                       , persistent-sqlite
@@ -28,6 +27,7 @@ library
                       , text
                       , time
                       , transformers
+                      , unliftio-core
                       , unordered-containers
                       , wreq
                       , xml-lens
