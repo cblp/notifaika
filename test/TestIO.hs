@@ -33,10 +33,10 @@ import           Control.Monad.RWS.Strict (MonadReader, RWST, execRWST, gets,
 import           Data.Aeson.X (Value (Object), decodeFile)
 import           Data.Function ((&))
 import           Data.List (union)
+import           Data.List.Extra (replace)
 import           Data.Map (Map)
 import qualified Data.Map as Map
 import           Data.Semigroup ((<>))
-import           Data.String.Utils (replace)
 import           Gitter.Monad (MonadGitter, runGitterAction)
 import           Gitter.Types (Gitter (..), ResourcePath, Room (ONETOONE))
 import           System.Directory (doesFileExist)

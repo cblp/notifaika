@@ -63,9 +63,9 @@ test-suite test
                       , containers
                       , directory
                       , exceptions
+                      , extra
                       , filepath
                       , gitter
-                      , MissingH
                       , mtl
                       , notifaika
                       , tasty
