@@ -21,6 +21,8 @@
 {-# LANGUAGE GeneralizedNewtypeDeriving #-}
 {-# LANGUAGE MultiParamTypeClasses #-}
 {-# LANGUAGE NamedFieldPuns #-}
+{-# LANGUAGE OverloadedLists #-}
+{-# LANGUAGE OverloadedStrings #-}
 {-# LANGUAGE RecordWildCards #-}
 
 module TestIO (Effect (..), TestIO, TestIOResult (..), execTestIO) where
@@ -43,7 +45,7 @@ import           System.Directory (doesFileExist)
 import           System.FilePath ((</>))
 
 import Notifaika.Cache (MonadCache, load, save)
-import Notifaika.Config (Config (..))
+import Notifaika.Config (Config (..), Target (..))
 import Notifaika.Discourse (extractEvents)
 import Notifaika.EventSource (EventSource (Discourse, RSS), MonadEventSource,
                               getEvents)
@@ -120,7 +122,7 @@ execTestIO initCache testAction = do
         config = Config
             { configCacheFile = cacheFile
             , configSources = sources
-            , configGitter = Gitter
+            , configTarget = TargetGitter Gitter
                   { gitterBaseUrl = "test://api.gitter.example.com/v1"
                   , gitterRoom = ONETOONE "cblp"
                   , gitterTokenFile = "/dev/null"

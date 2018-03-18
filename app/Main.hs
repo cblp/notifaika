@@ -17,6 +17,8 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 -}
 
+{-# LANGUAGE OverloadedStrings #-}
+
 module Main where
 
 import Notifaika
@@ -28,7 +30,7 @@ main = runNotifaika Config
           [ RSS "http://bananasandlenses.net/feed.xml"
           , RSS "https://www.reddit.com/r/ruhaskell/.rss"
           ]
-    , configGitter = Gitter
+    , configTarget = TargetGitter Gitter
           { gitterBaseUrl = "https://api.gitter.im/v1"
           --, gitterRoom = ONETOONE "cblp"
           , gitterRoom = REPO "ruHaskell" "forall"

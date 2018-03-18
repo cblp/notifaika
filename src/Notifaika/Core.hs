@@ -30,12 +30,13 @@ import           Control.Monad.Reader (MonadReader, ask)
 import           Data.Foldable (for_)
 import qualified Data.List as List
 import qualified Data.Set as Set
-import           Gitter (gitterRoom, sendChatMessage, withRoom)
-import           Gitter.Monad (MonadGitter)
+import           Data.Text (Text)
+import           Gitter (Gitter (..), gitterRoom, runGitterT, sendChatMessage,
+                         withRoom)
 
 import           Notifaika.Cache (MonadCache)
 import qualified Notifaika.Cache as Cache
-import           Notifaika.Config (Config (..))
+import           Notifaika.Config (Config (..), Target (..))
 import           Notifaika.EventSource (MonadEventSource, getEvents)
 import           Notifaika.Types (Eid, Event (Event), eventId, message)
 
@@ -49,7 +50,6 @@ detectNewEvents (Just olds, current) =
     in  (olds `List.union` fmap eventId news, news)
 
 type MonadRepost m =  ( MonadCache m
-                      , MonadGitter m
                       , MonadEventSource m
                       , MonadIO m
                       , MonadReader Config m
@@ -58,15 +58,18 @@ type MonadRepost m =  ( MonadCache m
 
 repostUpdates :: MonadRepost m => m ()
 repostUpdates = do
-    Config{configGitter, configSources} <- ask
-    let room = gitterRoom configGitter
+    Config{configTarget, configSources} <- ask
+    let post = case configTarget of
+            TargetGitter cfg -> postGitter cfg
     for_ configSources $ \source -> do
         currentEvents <- getEvents source
         cachedEvents <- Cache.load source
         let (cachedEvents', newEvents) =
                 detectNewEvents (cachedEvents, currentEvents)
-        for_ newEvents $ \Event{message} ->
-            -- TODO move withRoom above forM_
-            withRoom room (sendChatMessage message)
+        for_ newEvents $ \Event{message} -> post message
         when (cachedEvents /= Just cachedEvents') $
             Cache.save source cachedEvents'
+
+postGitter :: (MonadThrow m, MonadIO m) => Gitter -> Text -> m ()
+postGitter cfg@Gitter{gitterRoom} message =
+    runGitterT cfg $ withRoom gitterRoom $ sendChatMessage message

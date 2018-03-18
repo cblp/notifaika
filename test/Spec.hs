@@ -17,6 +17,9 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 -}
 
+{-# LANGUAGE OverloadedStrings #-}
+{-# LANGUAGE RecordWildCards #-}
+
 import TestIO
 
 import Notifaika.Core
@@ -67,15 +70,6 @@ test_repostUpdates = testGroup "repostUpdates"
                   ]
           assertEqual "effects" effectsExpected testIOResult_effects
     ]
-
--- topic :: Integer -> Integer -> Topic
--- topic tid time =
---     Topic { topic_created_at = posixSecondsToUTCTime (fromIntegral time)
---           , topic_fancy_title = "example title"
---           , topic_id = tid
---           , topic_posters = []
---           , topic_slug = "example"
---           }
 
 (-:) :: a -> b -> (a, b)
 (-:) = (,)
