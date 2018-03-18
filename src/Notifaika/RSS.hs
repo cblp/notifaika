@@ -28,22 +28,24 @@ module Notifaika.RSS
     , getRssEvents
     ) where
 
-import           Control.Monad.Reader ()
+import           Control.Exception (throwIO)
 import           Control.Monad.IO.Class (MonadIO, liftIO)
 import           Data.Monoid ((<>))
 import           Network.Wreq (get, responseBody)
-import           Text.XML (Document, Name(..))
+import           Text.XML (Document, Name (..))
 import qualified Text.XML as XML
-import           Text.XML.Lens ((^.), (^..), attr, el, plate, root, text)
+import           Text.XML.Lens (attr, el, plate, root, text, (^.), (^..))
 
-import Notifaika.RSS.Types (Item(..))
-import Notifaika.Types (Eid(Eid), Event(Event), Url, eventId, message)
+import Notifaika.RSS.Types (Item (..))
+import Notifaika.Types (Eid (Eid), Event (Event), Url, eventId, message)
 
 -- | Load concrete feed
 getRssEvents :: MonadIO m => Url -> m [Event]
 getRssEvents url = do
     r <- liftIO $ get url
-    Right xml <- pure . XML.parseLBS XML.def $ r ^. responseBody
+    xml <- case XML.parseLBS XML.def $ r ^. responseBody of
+        Right xml -> pure xml
+        Left e    -> liftIO $ throwIO e
     pure  [ Event{eventId = Eid item_link, message}
           | Item{item_title, item_channel, item_link} <- extractItems xml
           , let message = mconcat

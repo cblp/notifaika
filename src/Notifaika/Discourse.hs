@@ -26,7 +26,7 @@ module Notifaika.Discourse where
 import           Control.Lens ((^.))
 import           Control.Monad.Catch (MonadThrow)
 import           Control.Monad.IO.Class (MonadIO, liftIO)
-import           Data.Aeson (Result(Error, Success))
+import           Data.Aeson (Result (Error, Success))
 import           Data.Aeson.TH (defaultOptions, deriveJSON, fieldLabelModifier)
 import           Data.IntMap ((!))
 import qualified Data.IntMap as IntMap
@@ -37,13 +37,13 @@ import qualified Data.Text as Text
 import           Network.Wreq (asJSON, responseBody)
 import qualified Network.Wreq as Wreq
 
-import Notifaika.Types (Eid(Eid), Event(Event), Url, eventId, message)
+import Notifaika.Types (Eid (Eid), Event (Event), Url, eventId, message)
 
 data User = User { user_id :: Int, user_username :: Text }
 
 deriveJSON defaultOptions{fieldLabelModifier = dropPrefix "user_"} ''User
 
-data Poster = Poster { poster_user_id :: Int }
+newtype Poster = Poster { poster_user_id :: Int }
     deriving (Eq, Show)
 
 deriveJSON defaultOptions{fieldLabelModifier = dropPrefix "poster_"} ''Poster
@@ -57,7 +57,7 @@ data Topic = Topic  { topic_fancy_title :: Text
 
 deriveJSON defaultOptions{fieldLabelModifier = dropPrefix "topic_"} ''Topic
 
-data TopicList = TopicList { topicList_topics :: [Topic] }
+newtype TopicList = TopicList { topicList_topics :: [Topic] }
 
 deriveJSON  defaultOptions{fieldLabelModifier = dropPrefix "topicList_"}
             ''TopicList

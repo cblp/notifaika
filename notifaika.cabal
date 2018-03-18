@@ -1,5 +1,5 @@
 name:                notifaika
-version:             0.0.0.0
+version:             2018
 synopsis:            Send notifications from some Discourse instance to some Gitter chat
 homepage:            http://github.com/cblp/notifaika#readme
 license:             GPL-3
@@ -16,7 +16,6 @@ library
                       , base
                       , bytestring
                       , containers
-                      , errors
                       , exceptions
                       , gitter
                       , lens
@@ -25,7 +24,6 @@ library
                       , persistent-sqlite
                       , persistent-template
                       , text
-                      , time
                       , transformers
                       , unliftio-core
                       , unordered-containers
@@ -52,13 +50,8 @@ executable notifaika
     hs-source-dirs:     app
     main-is:            Main.hs
     ghc-options:        -Wall -Werror -threaded -rtsopts -with-rtsopts=-N
-    build-depends:      aeson
-                      , base
-                      , bytestring
+    build-depends:      base
                       , notifaika
-                      , lens
-                      , mtl
-                      , text
     default-extensions: OverloadedStrings
                         RecordWildCards
                         TemplateHaskell
@@ -67,7 +60,6 @@ executable notifaika
 test-suite test
     build-depends:      aeson
                       , base
-                      , bytestring
                       , containers
                       , directory
                       , exceptions
@@ -78,9 +70,7 @@ test-suite test
                       , notifaika
                       , tasty
                       , tasty-hunit
-                      , temporary
                       , text
-                      , time
                       , xml-conduit
     default-extensions: OverloadedLists
                         OverloadedStrings
