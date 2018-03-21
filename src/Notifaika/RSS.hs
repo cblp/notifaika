@@ -23,55 +23,49 @@
 {-# LANGUAGE OverloadedStrings #-}
 
 module Notifaika.RSS
-    ( Item(..)
-    , extractItems
-    , getRssEvents
+    ( getRssEvents
+    , RSSException
     ) where
 
-import           Control.Exception (throwIO)
+import           Control.Exception (Exception, throwIO)
 import           Control.Monad.IO.Class (MonadIO, liftIO)
-import           Data.Monoid ((<>))
+import           Control.Lens ((^.))
+import           Data.Maybe (mapMaybe)
 import           Network.Wreq (get, responseBody)
-import           Text.XML (Document, Name (..))
-import qualified Text.XML as XML
-import           Text.XML.Lens (attr, el, plate, root, text, (^.), (^..))
+import           Text.Feed.Import (parseFeedSource)
+import           Text.Feed.Query (getFeedItems, getFeedTitle,
+                                  getItemLink, getItemTitle)
+import           Text.Feed.Types (Feed)
 
-import Notifaika.RSS.Types (Item (..))
 import Notifaika.Types (Eid (Eid), Event (Event), Url, eventId, message)
+
+data RSSException
+    = FeedParsingError
+    deriving (Eq, Show)
+
+instance Exception RSSException
 
 -- | Load concrete feed
 getRssEvents :: MonadIO m => Url -> m [Event]
 getRssEvents url = do
     r <- liftIO $ get url
-    xml <- case XML.parseLBS XML.def $ r ^. responseBody of
-        Right xml -> pure xml
-        Left e    -> liftIO $ throwIO e
-    pure  [ Event{eventId = Eid item_link, message}
-          | Item{item_title, item_channel, item_link} <- extractItems xml
-          , let message = mconcat
-                    [ "Новый пост «", item_title
-                    , "» в ленте «", item_channel, "»\n"
-                    , item_link
-                    ]
-          ]
+    case parseFeedSource (r ^. responseBody) of
+        Nothing ->
+            liftIO $ throwIO FeedParsingError
+        Just feed ->
+            pure $ extractEvents feed
 
--- | Get feed items out of the document.
-extractItems :: Document -> [Item]
-extractItems doc = do
-    elChannel <- doc ^.. root . channel
-    let item_channel = elChannel ^. title . text
-    elItem <- elChannel ^.. item
-    pure Item { item_channel
-              , item_link = elItem ^. link
-              , item_title = elItem ^. title . text
-              }
+extractEvents :: Feed -> [Event]
+extractEvents feed = mapMaybe extract (getFeedItems feed)
   where
-    channel = child "channel" <> el (atom "feed")
-    title = child "title" <> child (atom "title")
-    item = child "item" <> child (atom "entry")
-    link = child "link" . text <> child (atom "link") . attr "href"
-    atom name = Name  { nameLocalName = name
-                      , nameNamespace = Just "http://www.w3.org/2005/Atom"
-                      , namePrefix = Nothing
-                      }
-    child elname = plate . el elname
+    extract item = do
+        link <- getItemLink item
+        title <- getItemTitle item
+        pure Event
+            { eventId = Eid link
+            , message = mconcat
+                [ "Новый пост «", title
+                , "» в ленте «", getFeedTitle feed, "»\n"
+                , link
+                ]
+            }

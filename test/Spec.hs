@@ -21,39 +21,15 @@ import TestIO
 
 import Notifaika.Core
 import Notifaika.EventSource
-import Notifaika.RSS
 
 import Data.Map as Map
-import Data.Text
 import Test.Tasty
 import Test.Tasty.HUnit
-import Text.XML
 
 main :: IO ()
 main = defaultMain $ testGroup ""
-    [ test_extractItems
-    , test_repostUpdates
+    [ test_repostUpdates
     ]
-
-test_extractItems :: TestTree
-test_extractItems = testGroup "extractItems"
-  [ testCase "ok" $ do
-      let xml = Document
-            { documentPrologue = undefined
-            , documentRoot = element' "rss"
-              [ element "channel"
-                [ element "title" [content "c"]
-                , element "item"
-                  [element "title" [content "a"], element "link" [content "b"]]
-                ]
-              ]
-            , documentEpilogue = undefined
-            }
-          items = extractItems xml
-          itemsExpected =
-            [Item{item_channel = "c", item_link = "b", item_title = "a"}]
-      assertEqual "items" itemsExpected items
-  ]
 
 test_repostUpdates :: TestTree
 test_repostUpdates = testGroup "repostUpdates"
@@ -103,13 +79,3 @@ test_repostUpdates = testGroup "repostUpdates"
 
 (-:) :: a -> b -> (a, b)
 (-:) = (,)
-
-element :: Name -> [Node] -> Node
-element name = NodeElement . element' name
-
-element' :: Name -> [Node] -> Element
-element' name nodes = Element
-    {elementName = name, elementAttributes = undefined, elementNodes = nodes}
-
-content :: Text -> Node
-content = NodeContent

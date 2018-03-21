@@ -17,6 +17,7 @@ library
                       , bytestring
                       , containers
                       , exceptions
+                      , feed
                       , gitter
                       , lens
                       , mtl
@@ -28,8 +29,6 @@ library
                       , unliftio-core
                       , unordered-containers
                       , wreq
-                      , xml-lens
-                      , xml-conduit
     default-language:   Haskell2010
     exposed-modules:    Data.Aeson.X
                         Notifaika
@@ -70,8 +69,6 @@ test-suite test
                       , notifaika
                       , tasty
                       , tasty-hunit
-                      , text
-                      , xml-conduit
     default-extensions: OverloadedLists
                         OverloadedStrings
                         RecordWildCards
